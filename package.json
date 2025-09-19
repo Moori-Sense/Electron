@@ -19,6 +19,8 @@
   },
   "main": "dist-electron/main.js",
   "dependencies": {
+    "@types/node": "^24.5.2",
+    "axios": "^1.12.2",
     "chart.js": "^4.5.0",
     "modbus-serial": "^8.0.21-no-serial-port",
     "react": "^19.1.1",
