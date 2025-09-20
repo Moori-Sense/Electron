@@ -1,12 +1,18 @@
 import { defineConfig } from 'vite'
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
+<<<<<<< HEAD
 import react from '@vitejs/plugin-react'
+=======
+>>>>>>> 33d5560d226ad5a3a7ce2b2647019252feea6e17
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+<<<<<<< HEAD
     react(),
+=======
+>>>>>>> 33d5560d226ad5a3a7ce2b2647019252feea6e17
     electron({
       main: {
         // Shortcut of `build.lib.entry`.

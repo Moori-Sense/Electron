@@ -1,11 +1,16 @@
 {
+<<<<<<< HEAD
   "name": "electron-vite-project",
+=======
+  "name": "electron-mooring",
+>>>>>>> 33d5560d226ad5a3a7ce2b2647019252feea6e17
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
+<<<<<<< HEAD
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -30,4 +35,25 @@
     "vite-plugin-electron-renderer": "^0.14.5"
   },
   "main": "dist-electron/main.js"
+=======
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6",
+    "vite-plugin-electron": "^0.28.6",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "main": "dist-electron/main.js",
+  "dependencies": {
+    "chart.js": "^4.5.0",
+    "modbus-serial": "^8.0.21-no-serial-port",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "serialport": "^13.0.0"
+  }
+>>>>>>> 33d5560d226ad5a3a7ce2b2647019252feea6e17
 }
