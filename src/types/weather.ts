@@ -6,23 +6,3 @@ export interface WeatherData{
     weatherCondition: string; // 날씨 상태
 }
 
-export interface WeatherAPIResponse{
-    response: {
-        header: {
-            resultCode: string;
-            resultMsg: string;
-        };
-        body: {
-            items: {
-                item: Array<{
-                    baseDate: string;
-                    baseTime: string;
-                    category: string;
-                    nx: number;
-                    ny: number;
-                    obsrValue: string;
-                }>;
-            }
-        }
-    }
-}
