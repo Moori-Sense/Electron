@@ -1,6 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
-import path from 'path'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import dotenv from 'dotenv'
+
+const require = createRequire(import.meta.url)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // .env 파일 로드
 dotenv.config()
@@ -16,13 +21,14 @@ dotenv.config()
 // │
 process.env.APP_ROOT = path.join(__dirname, '..')
 
+// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
-let win: InstanceType<typeof BrowserWindow> | null = null
+let win: BrowserWindow | null
 
 // 메인 프로세스용 날씨 서비스 import
 import { fetchWeatherDataMain } from '../src/services/weatherServiceMain'
