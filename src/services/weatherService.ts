@@ -4,7 +4,7 @@ import { WeatherData } from "../types/weather";
 
 const API_KEY = import.meta.env.OPENWEATHER_API_KEY;
 const ULSAN_LAT = import.meta.env.ULSAN_LAT;
-const ULSAN_LON = import.meta.env.ULSAN_LNG;
+const ULSAN_LON = import.meta.env.ULSAN_LON;
 
 
 export async function fetchWeatherData(): Promise<WeatherData>{
@@ -12,7 +12,7 @@ export async function fetchWeatherData(): Promise<WeatherData>{
         const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
             params: {
                 lat: ULSAN_LAT,
-                lng: ULSAN_LON,
+                lon: ULSAN_LON,
                 appid: API_KEY,
                 units: 'metric',
                 lang: 'kr'
