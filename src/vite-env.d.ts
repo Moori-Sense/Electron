@@ -1,5 +1,15 @@
-<<<<<<< HEAD
 /// <reference types="vite/client" />
-=======
-/// <reference types="vite/client" />
->>>>>>> 33d5560d226ad5a3a7ce2b2647019252feea6e17
+
+// Electron IPC 타입 정의
+declare global {
+  interface Window {
+    ipcRenderer: {
+      on: (channel: string, listener: (event: Electron.IpcRendererEvent, ...args: any[]) => void) => void;
+      off: (channel: string, ...args: any[]) => void;
+      send: (channel: string, ...args: any[]) => void;
+      invoke: (channel: string, ...args: any[]) => Promise<any>;
+    };
+  }
+}
+
+export {};
