@@ -1,14 +1,29 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  
+  return {
+    define: {
+      'process.env.WEATHER_API_KEY': JSON.stringify(env.WEATHER_API_KEY),
+      'process.env.ULSAN_LAT': JSON.stringify(env.ULSAN_LAT),
+      'process.env.ULSAN_LON': JSON.stringify(env.ULSAN_LON),
+    },
+    plugins: [
     electron({
       main: {
         // Shortcut of `build.lib.entry`.
         entry: 'electron/main.ts',
+        vite: {
+          build: {
+            rollupOptions: {
+              external: ['electron']
+            }
+          }
+        }
       },
       preload: {
         // Shortcut of `build.rollupOptions.input`.
@@ -24,4 +39,5 @@ export default defineConfig({
         : {},
     }),
   ],
+  }
 })
