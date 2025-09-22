@@ -82,6 +82,153 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* 메인 페이지 스타일 */
+.main-page {
+  min-height: 100vh;
+  background: white;
+}
+
+.weather-sidebar {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  max-width: 400px;
+}
+
+/* 날씨 표시 컴포넌트 스타일 */
+.weather-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 1.5rem;
+  color: white;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}
+
+.weather-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.weather-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.location {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.weather-icon-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.weather-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.weather-condition {
+  text-align: left;
+}
+
+.main-condition {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+
+.description {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: capitalize;
+}
+
+.temperature-section {
+  text-align: right;
+}
+
+.main-temp {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.weather-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.weather-item.wave-height {
+  grid-column: span 2;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.wave-time {
+  font-size: 0.6rem;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+.timestamp {
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.loading, .error, .no-data {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #ff6b6b;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -92,5 +239,22 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  
+  .weather-display {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #333;
+  }
+  
+  .weather-main {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .weather-item {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .weather-item.wave-height {
+    background: rgba(255, 255, 255, 0.3);
   }
 }
