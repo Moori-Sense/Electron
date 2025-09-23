@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import ship from '../assets/ship.png';
 import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
+// --- 날씨 컴포넌트 임포트 ---
+import { WeatherDisplay } from './WeatherDisplay';
 
 // --- 데이터 타입 정의 (TypeScript) ---
 interface MooringLineData {
@@ -12,10 +14,9 @@ interface MooringLineData {
   startY: number;
   endX: number;
   endY: number;
-  // 💡 1. 데이터베이스에서 가져왔다고 가정한 상세 정보를 추가합니다.
-  material?: string;       // 계류줄의 재질
-  lastInspected?: string;  // 마지막 검사일
-  diameter?: number;       // 직경 (mm)
+  material?: string;
+  lastInspected?: string;
+  diameter?: number;
 }
 
 // --- 전역 설정값 ---
@@ -31,17 +32,14 @@ const getLineColorByTension = (tension: number): string => {
 };
 
 // --- 자식 컴포넌트: 계류줄 정보 모달 ---
-// 💡 2. 클릭된 계류줄의 상세 정보를 보여주기 위한 모달 컴포넌트를 새로 만듭니다.
 interface LineInfoModalProps {
-  line: MooringLineData; // 표시할 계류줄의 데이터
-  onClose: () => void;   // 모달을 닫는 함수
+  line: MooringLineData;
+  onClose: () => void;
 }
 
 const LineInfoModal = ({ line, onClose }: LineInfoModalProps): JSX.Element => {
   return (
-    // 모달 배경 (어둡게 처리)
     <div style={modalStyles.backdrop} onClick={onClose}>
-      {/* 모달 컨텐츠 (배경 클릭 시 이벤트 전파 방지) */}
       <div style={modalStyles.content} onClick={(e) => e.stopPropagation()}>
         <h2>{line.id} 상세 정보</h2>
         <p><strong>현재 장력:</strong> {line.tension.toFixed(1)}t</p>
@@ -82,14 +80,6 @@ const modalStyles: { [key: string]: React.CSSProperties } = {
   }
 };
 
-
-// --- 자식 컴포넌트: 계류줄 ---
-interface MooringLineProps {
-  line: MooringLineData;
-  // 💡 3. 부모 컴포넌트로부터 클릭 이벤트를 처리할 함수를 props로 받습니다.
-  onClick: () => void;
-}
-
 // --- 자식 컴포넌트: 계류줄 ---
 interface MooringLineProps {
   line: MooringLineData;
@@ -99,7 +89,6 @@ interface MooringLineProps {
 const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   const LINE_THICKNESS = 4;
   return (
-    // 이 <g> 태그에 onClick이 적용되어 있어, 내부의 line과 text 모두에 클릭이 적용됩니다.
     <g style={{ cursor: 'pointer' }} onClick={onClick}>
       <line
         x1={line.startX} y1={line.startY}
@@ -110,8 +99,6 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
       <text
         x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
         fill="white" fontSize="16" textAnchor="middle"
-        // 👇 이 부분의 style={{ pointerEvents: 'none' }} 속성을 제거했습니다.
-        // 이제 텍스트도 클릭 이벤트에 정상적으로 반응합니다.
       >
         {`${line.id}: ${line.tension.toFixed(1)}t`}
       </text>
@@ -120,7 +107,6 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
 };
 
 // --- 자식 컴포넌트: 아이콘과 레이블 ---
-// (이전 코드와 동일)
 interface IconWithLabelProps {
   href: string;
   x: number;
@@ -169,12 +155,11 @@ export const MooringDiagram = (): JSX.Element => {
   };
 
   const iconPositions = {
-    graph:   { x: 900, y: 630, width: 30, height: 30 , label : '계류줄 장력 그래프'},
-    setting: { x: 900, y: 690, width: 30, height: 30 ,label : '설정'},
+    graph:   { x: 860, y: 630, width: 30, height: 30 , label : '계류줄 장력 그래프'},
+    setting: { x: 860, y: 690, width: 30, height: 30 ,label : '설정'},
   };
 
   const [lines, setLines] = useState<MooringLineData[]>([
-    // 💡 4. 초기 데이터에 DB에서 가져온 가상의 상세 정보를 추가합니다.
     { id: 'Line 1', tension: 8.5,  material: 'Dyneema', diameter: 80, lastInspected: '2025-08-01', startX: shipX + bollardPositions.line_1.x, startY: shipY + bollardPositions.line_1.y, endX: pierCleatPositions.cleat1.x, endY: pierCleatPositions.cleat1.y },
     { id: 'Line 2', tension: 9.2,  material: 'Polyester', diameter: 85, lastInspected: '2025-08-02', startX: shipX + bollardPositions.line_2.x, startY: shipY + bollardPositions.line_2.y, endX: pierCleatPositions.cleat2.x, endY: pierCleatPositions.cleat2.y },
     { id: 'Line 3', tension: 8.8,  material: 'Polyester', diameter: 85, lastInspected: '2025-08-03', startX: shipX + bollardPositions.line_3.x, startY: shipY + bollardPositions.line_3.y, endX: pierCleatPositions.cleat3.x, endY: pierCleatPositions.cleat3.y },
@@ -185,8 +170,6 @@ export const MooringDiagram = (): JSX.Element => {
     { id: 'Line 8', tension: 12.5, material: 'Dyneema', diameter: 80, lastInspected: '2025-09-14', startX: shipX + bollardPositions.line_8.x, startY: shipY + bollardPositions.line_8.y, endX: pierCleatPositions.cleat8.x, endY: pierCleatPositions.cleat8.y },
   ]);
 
-  // 💡 5. 어떤 계류줄이 선택되었는지 상태로 관리합니다.
-  // 초기값은 null로, 아무것도 선택되지 않았음을 의미합니다.
   const [selectedLine, setSelectedLine] = useState<MooringLineData | null>(null);
 
   useEffect(() => {
@@ -199,8 +182,24 @@ export const MooringDiagram = (): JSX.Element => {
   }, []);
 
   return (
-    // position: 'relative'은 모달의 위치 기준점이 되기 위해 필요합니다.
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      
+      {/* --- 💡 수정된 부분 시작 --- */}
+      <div style={{
+        position: 'absolute',       // 절대 위치 지정
+        top: '100px',                // 위에서 20px
+        right: '100px',              // 오른쪽에서 20px
+        zIndex: 10,                 // 다른 요소들 위에 표시되도록 z-index 설정
+        color: 'white',             // 이 div 안의 모든 텍스트 색상을 흰색으로 지정
+        backgroundColor: 'rgba(44, 62, 80, 0.8)', // 가독성을 위한 반투명 배경
+        padding: '20px',
+        borderRadius: '10px',
+        border: '1px solid #7f8c8d' // 모달과 스타일 통일
+      }}>
+        <WeatherDisplay />
+      </div>
+      {/* --- 수정된 부분 끝 --- */}
+
       <svg
         viewBox="0 0 1200 800"
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
@@ -208,8 +207,6 @@ export const MooringDiagram = (): JSX.Element => {
         <image href={ship} x={shipX} y={shipY} width={SHIP_WIDTH} height={SHIP_HEIGHT} />
         
         {lines.map((line) => (
-          // 💡 6. 각 MooringLine 컴포넌트에 클릭 핸들러를 전달합니다.
-          // 클릭 시 'selectedLine' state를 해당 라인의 데이터로 업데이트합니다.
           <MooringLine
             key={line.id}
             line={line}
@@ -229,8 +226,6 @@ export const MooringDiagram = (): JSX.Element => {
         />
       </svg>
       
-      {/* 💡 7. 'selectedLine' state에 데이터가 있을 때만 LineInfoModal 컴포넌트를 렌더링합니다. (조건부 렌더링) */}
-      {/* 모달의 'onClose' prop에는 'selectedLine' state를 다시 null로 만드는 함수를 전달합니다. */}
       {selectedLine && (
         <LineInfoModal line={selectedLine} onClose={() => setSelectedLine(null)} />
       )}
