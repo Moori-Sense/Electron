@@ -5,6 +5,13 @@ const LAT = 34.919;
 const LON = 129.121;
 const OBS_CODE = "KG_0024";
 
+
+let OPENWEATHER_API_KEY = 'db059c4a3a23d535f640a485829eaf6f';
+let KHOA_API_KEY = 'WaKY8BNXgOVS0t8uBviLtg==';
+let ULSAN_LAT = 35.5384;
+let ULSAN_LON = 129.3114;
+
+
 // OpenWeather API 호출
 async function getWeatherData(apiKey: string): Promise<any> {
   const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
@@ -25,8 +32,11 @@ async function getWaveData(apiKey: string): Promise<any> {
 // 날씨 데이터 가져오기
 export async function fetchWeatherDataMain(): Promise<WeatherData> {
   try {
-    const openWeatherKey = process.env.OPENWEATHER_API_KEY;
-    const khoaKey = process.env.KHOA_API_KEY;
+    //const openWeatherKey = process.env.OPENWEATHER_API_KEY;
+    //const khoaKey = process.env.KHOA_API_KEY;
+
+    const openWeatherKey = OPENWEATHER_API_KEY ;
+    const khoaKey = KHOA_API_KEY ;
     
     if (!openWeatherKey || !khoaKey) {
       throw new Error('API 키가 설정되지 않았습니다.');

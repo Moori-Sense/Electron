@@ -42,14 +42,14 @@ export const queries = {
   // INSERT OR IGNORE: 이미 해당 번호의 데이터가 있으면 무시하고 넘어갑니다.
   SEED_INITIAL_LINES: `
     INSERT OR IGNORE INTO MooringLines (id, length, manufacturer, model) VALUES
-    (1, 100, '대한로프', 'DR-100'),
-    (2, 100, '대한로프', 'DR-100'),
-    (3, 100, '해양물산', 'OS-250'),
-    (4, 100, '해양물산', 'OS-250'),
-    (5, 100, '대한로프', 'DR-150'),
-    (6, 100, '대한로프', 'DR-150'),
-    (7, 100, '글로벌마린', 'GM-X1'),
-    (8, 100, '글로벌마린', 'GM-X1');
+    (1, 100, 'korean rope', 'DR-100'),
+    (2, 100, 'korean rope', 'DR-100'),
+    (3, 100, 'korean marine', 'OS-250'),
+    (4, 100, 'korean marine', 'OS-250'),
+    (5, 100, 'korean rope', 'DR-150'),
+    (6, 100, 'korean rope', 'DR-150'),
+    (7, 100, 'global marine', 'GM-X1'),
+    (8, 100, 'global marine', 'GM-X1');
   `,
 
 
