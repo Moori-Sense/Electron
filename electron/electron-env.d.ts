@@ -25,3 +25,9 @@ declare namespace NodeJS {
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
 }
+
+interface Window {
+  electronAPI: {
+    getMooringLineData: (lineId: number) => Promise<{ details: any; history: any; }>;
+  };
+}

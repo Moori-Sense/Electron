@@ -18,6 +18,7 @@ export const queries = {
         usageTime INTEGER DEFAULT 0,
         manufacturer TEXT,
         model TEXT
+        maintenanceDate DATETIME
     );
 
     CREATE TABLE IF NOT EXISTS TensionLogs (
@@ -123,4 +124,43 @@ export const queries = {
   GET_ALERT_LOGS_BY_LEVEL: `
     SELECT * FROM AlertLogs WHERE alertMessage = ? ORDER BY time DESC;
   `,
+
+  GET_LINE_DETAILS: `
+    SELECT * FROM MooringLines WHERE id = ?;
+  `,
+
+  
+  //---------------------------------계류줄 정보 조회 관련 쿼리------------------------------------//
+
+  // 특정 계류줄 번호의 제조사, 모델 정보를 조회
+  GET_LINE_MANUFACTURER_MODEL: `
+    SELECT manufacturer, model FROM MooringLines WHERE id = ?;
+  `,
+
+  // 특정 계류줄 번호의 최근 12시간의 장력 이력 조회
+  GET_LINE_TENSION_HISTORY: `
+    SELECT * FROM TensionLogs 
+    WHERE lineId = ? AND time >= datetime('now', '-12 hours')
+    ORDER BY time DESC;
+  `,
+  // 특정 계류줄 번호의 총 경고 횟수 조회
+  GET_LINE_WARNING_COUNT: `
+    SELECT COUNT(alertMessage) AS alertCount FROM AlertLogs WHERE lineId = ? AND alertMessage = 'WARNING';
+  `,
+
+  // 특정 계류줄 번호의 최근 위험 횟수 조회
+  GET_LINE_DANGER_COUNT: `
+    SELECT COUNT(alertMessage) AS alertCount FROM AlertLogs WHERE lineId = ? AND alertMessage = 'DANGER';
+  `,
+
+  // 특정 계류줄 번호의 마지막 정비 일자 조회
+  GET_LINE_LAST_MAINTENANCE: `
+    SELECT maintenanceDate FROM MooringLines WHERE id = ?;
+  `,
+
+  // 특정 계류줄 번호의 사용시간 조회
+  GET_LINE_USAGE_TIME: `
+    SELECT usageTime FROM MooringLines WHERE id = ?;
+  `
+
 };
