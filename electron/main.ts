@@ -2,22 +2,22 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
-// dotenv import를 제거. Vite가 자동으로 .env 파일 처리.
-// import dotenv from 'dotenv' 
+// --- ⬇️ dotenv 임포트 수정 (오류 해결) ⬇️ ---
+import dotenv from 'dotenv'
+
+// --- ⬆️ dotenv 임포트 수정 (오류 해결) ⬆️ ---
 import Database from 'better-sqlite3'
 import { queries } from '../db/queries'
-import {dirname} from "node:path";
+import { dirname } from "node:path";
 
-// --- ⬇️ ES 모듈 환경을 위한 경로 설정 ⬇️ ---
-// import.meta.url을 기반으로 __filename과 __dirname을 안전하게 생성합니다.
+// --- ES 모듈 환경을 위한 경로 설정 ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// dotenv.config() 호출을 제거했습니다. Vite가 이 역할을 대신합니다.
-// --- ⬆️ 경로 설정 종료 ⬆️ ---
+// --- dotenv 실행 코드 ---
+dotenv.config();
 
-
-// 앱의 루트 경로 및 빌드 경로 설정
+// --- 앱 경로 설정 ---
 process.env.APP_ROOT = path.join(__dirname, '..')
 export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
@@ -26,19 +26,16 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 
 // ====================================================================
-// ===== ⬇️ SQLite 데이터베이스 설정 시작 ⬇️ =====
+// ===== ⬇️ SQLite 데이터베이스 설정 ⬇️ =====
 // ====================================================================
 
-// 1. 원본 DB 파일 경로 설정 (개발/배포 환경 자동 감지)
 const srcDbPath = app.isPackaged
   ? path.join(process.resourcesPath, 'db', 'my.db')
   : path.join(process.env.APP_ROOT, 'db', 'my.db')
 
-// 2. 사용자의 데이터 폴더(userData)에 저장될 DB 파일 경로 설정
 const userDataPath = app.getPath('userData')
 const destDbPath = path.join(userDataPath, 'my.db')
 
-// 3. 앱 최초 실행 시, 원본 DB를 사용자 폴더로 복사
 if (!fs.existsSync(destDbPath)) {
   if (!fs.existsSync(userDataPath)) {
     fs.mkdirSync(userDataPath, { recursive: true });
@@ -47,14 +44,9 @@ if (!fs.existsSync(destDbPath)) {
   console.log('Database file copied to:', destDbPath);
 }
 
-// 4. 사용자 폴더의 DB 파일에 최종 연결
-const db = new Database(destDbPath, { verbose: console.log });
+const db = new Database(destDbPath);
 console.log('Database connected at:', destDbPath);
 
-
-// --- ⬇️ 데이터베이스 초기화 (테이블 생성 및 초기 데이터 삽입) ⬇️ ---
-// 앱이 시작될 때마다 테이블이 존재하는지 확인하고,
-// 초기 데이터가 없으면 삽입하도록 합니다.
 try {
   db.exec(queries.CREATE_SCHEMA);
   db.exec(queries.SEED_INITIAL_LINES);
@@ -62,7 +54,6 @@ try {
 } catch (error) {
   console.error('Database initialization failed:', error);
 }
-// --- ⬆️ 데이터베이스 초기화 종료 ⬆️ ---
 
 // ====================================================================
 // ===== ⬆️ SQLite 데이터베이스 설정 종료 ⬆️ =====
@@ -72,10 +63,9 @@ try {
 let win: BrowserWindow | null
 
 // ====================================================================
-// ===== ⬇️ IPC 핸들러 등록 시작 ⬇️ =====
+// ===== ⬇️ IPC 핸들러 등록 ⬇️ =====
 // ====================================================================
 
-// --- 날씨 데이터 IPC 핸들러 ---
 import { fetchWeatherDataMain } from '../src/services/weatherService'
 
 ipcMain.handle('get-weather-data', async () => {
@@ -87,7 +77,6 @@ ipcMain.handle('get-weather-data', async () => {
   }
 });
 
-// --- 데이터베이스 IPC 핸들러 ---
 ipcMain.handle('getMooringLineData', async (_event, lineId: number) => {
   try {
     const detailsStmt = db.prepare(queries.GET_MOORING_LINE_BY_ID);
