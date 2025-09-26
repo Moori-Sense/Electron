@@ -17,7 +17,7 @@ export const queries = {
         length INTEGER NOT NULL,
         usageTime INTEGER DEFAULT 0,
         manufacturer TEXT,
-        model TEXT
+        model TEXT,
         maintenanceDate DATETIME
     );
 
@@ -41,15 +41,15 @@ export const queries = {
   // 1번부터 8번까지의 초기 계류줄 데이터를 삽입합니다.
   // INSERT OR IGNORE: 이미 해당 번호의 데이터가 있으면 무시하고 넘어갑니다.
   SEED_INITIAL_LINES: `
-    INSERT OR IGNORE INTO MooringLines (id, length, manufacturer, model) VALUES
-    (1, 100, 'korean rope', 'DR-100'),
-    (2, 100, 'korean rope', 'DR-100'),
-    (3, 100, 'korean marine', 'OS-250'),
-    (4, 100, 'korean marine', 'OS-250'),
-    (5, 100, 'korean rope', 'DR-150'),
-    (6, 100, 'korean rope', 'DR-150'),
-    (7, 100, 'global marine', 'GM-X1'),
-    (8, 100, 'global marine', 'GM-X1');
+    INSERT OR IGNORE INTO MooringLines (id, length, manufacturer, model, maintenanceDate) VALUES
+    (1, 100, 'korean rope', 'DR-100', '2025-08-01'),
+    (2, 100, 'korean rope', 'DR-100', '2025-08-02'),
+    (3, 100, 'korean marine', 'OS-250', '2025-08-03'),
+    (4, 100, 'korean marine', 'OS-250', '2025-08-04'),
+    (5, 100, 'korean rope', 'DR-150', '2025-09-11'),
+    (6, 100, 'korean rope', 'DR-150', '2025-09-12'),
+    (7, 100, 'global marine', 'GM-X1', '2025-09-13'),
+    (8, 100, 'global marine', 'GM-X1', '2025-09-14');
   `,
 
 
