@@ -59,6 +59,34 @@ try {
 // ===== ⬆️ SQLite 데이터베이스 설정 종료 ⬆️ =====
 // ====================================================================
 
+// ====================================================================
+// ===== ⬇️ [여기에 코드 추가] 개발용 모의 데이터 자동 생성 ⬇️ =====
+// ====================================================================
+if (!app.isPackaged) {
+  try {
+    // 1. 데이터가 이미 있는지 확인
+    const countStmt = db.prepare('SELECT COUNT(*) as count FROM TensionLogs');
+    const result = countStmt.get() as { count: number }; // 타입스크립트 환경을 고려하여 타입 지정
+
+    // 2. 데이터가 1000개 미만일 때만 새로 생성
+    if (result.count < 1000) {
+      console.log('TensionLogs에 모의 데이터를 생성합니다...');
+      
+      const seedStmt = db.prepare(queries.INSERT_BULK_MOCK_TENSION_LOGS);
+      const info = seedStmt.run(1000); // 1000개의 데이터를 생성하도록 요청
+
+      console.log(`✅ ${info.changes}개의 모의 데이터가 성공적으로 추가되었습니다.`);
+    } else {
+      console.log('ℹ️ TensionLogs에 이미 충분한 데이터가 있어 모의 데이터 생성을 건너뜁니다.');
+    }
+  } catch (error) {
+    console.error('❗️ 모의 데이터 생성에 실패했습니다:', error);
+  }
+}
+// ====================================================================
+// ===== ⬆️ [코드 추가 완료] ⬆️ =====
+// ====================================================================
+
 
 let win: BrowserWindow | null
 

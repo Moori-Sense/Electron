@@ -17,7 +17,7 @@ export const queries = {
         length INTEGER NOT NULL,
         usageTime INTEGER DEFAULT 0,
         manufacturer TEXT,
-        model TEXT
+        model TEXT,
         maintenanceDate DATETIME
     );
 
@@ -41,15 +41,15 @@ export const queries = {
   // 1번부터 8번까지의 초기 계류줄 데이터를 삽입합니다.
   // INSERT OR IGNORE: 이미 해당 번호의 데이터가 있으면 무시하고 넘어갑니다.
   SEED_INITIAL_LINES: `
-    INSERT OR IGNORE INTO MooringLines (id, length, manufacturer, model) VALUES
-    (1, 100, 'korean rope', 'DR-100'),
-    (2, 100, 'korean rope', 'DR-100'),
-    (3, 100, 'korean marine', 'OS-250'),
-    (4, 100, 'korean marine', 'OS-250'),
-    (5, 100, 'korean rope', 'DR-150'),
-    (6, 100, 'korean rope', 'DR-150'),
-    (7, 100, 'global marine', 'GM-X1'),
-    (8, 100, 'global marine', 'GM-X1');
+    INSERT OR IGNORE INTO MooringLines (id, length, manufacturer, model, maintenanceDate) VALUES
+    (1, 100, 'korean rope', 'DR-100', '2025-08-01'),
+    (2, 100, 'korean rope', 'DR-100', '2025-08-02'),
+    (3, 100, 'korean marine', 'OS-250', '2025-08-03'),
+    (4, 100, 'korean marine', 'OS-250', '2025-08-04'),
+    (5, 100, 'korean rope', 'DR-150', '2025-09-11'),
+    (6, 100, 'korean rope', 'DR-150', '2025-09-12'),
+    (7, 100, 'global marine', 'GM-X1', '2025-09-13'),
+    (8, 100, 'global marine', 'GM-X1', '2025-09-14');
   `,
 
 
@@ -161,6 +161,31 @@ export const queries = {
   // 특정 계류줄 번호의 사용시간 조회
   GET_LINE_USAGE_TIME: `
     SELECT usageTime FROM MooringLines WHERE id = ?;
+  `,
+
+  //---------------------------------mock data 쿼리------------------------------------//
+
+  INSERT_MOCK_TENSION_LOG: `
+    INSERT INTO TensionLogs (lineId, tension, time) VALUES (?, ?, ?);
+  `,
+
+  /**
+   * (추가) 지정된 개수(예: 1000개)만큼의 무작위 TensionLog 모의 데이터를 한 번에 생성합니다.
+   * ? 에 생성할 데이터의 개수를 넘겨주세요.
+   * 사용 예: db.prepare(queries.INSERT_BULK_MOCK_TENSION_LOGS).run(1000);
+   */
+  INSERT_BULK_MOCK_TENSION_LOGS: `
+    WITH RECURSIVE generate_series(n) AS (
+      SELECT 1
+      UNION ALL
+      SELECT n + 1 FROM generate_series WHERE n < ?
+    )
+    INSERT INTO TensionLogs (lineId, tension, time)
+    SELECT
+      abs(random()) % 8 + 1,                              -- lineId: 1~8번 줄 중에서 무작위 선택
+      round(80.0 + (abs(random()) % 400) / 10.0, 2),      -- tension: 80.0 ~ 120.0 사이의 무작위 장력
+      datetime('now', '-' || n || ' minutes')             -- time: 현재로부터 n분 전
+    FROM generate_series;
   `
 
 };
