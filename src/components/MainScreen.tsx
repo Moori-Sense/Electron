@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import ship from '../assets/ship.png';
 import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
+import dock from '../assets/dock_good_nu5.png';
 // --- 날씨 컴포넌트 임포트 ---
 import { WeatherDisplay } from './WeatherDisplay';
 
@@ -18,18 +19,6 @@ interface MooringLineData {
   lastInspected?: string;
   diameter?: number;
 }
-
-// --- 전역 설정값 ---
-const SHIP_WIDTH = 650;
-const SHIP_HEIGHT = 1300;
-const SHIP_CENTER_X = 350;
-const SHIP_CENTER_Y = 400;
-
-const getLineColorByTension = (tension: number): string => {
-  if (tension >= 12.0) return '#ff4d4d';
-  if (tension >= 10.0) return '#ffc107';
-  return '#4caf50';
-};
 
 // --- 자식 컴포넌트: 계류줄 정보 모달 ---
 interface LineInfoModalProps {
@@ -135,21 +124,47 @@ const IconWithLabel = ({ href, x, y, width, height, label, onClick }: IconWithLa
     );
 };
 
+const getLineColorByTension = (tension: number): string => {
+  if (tension >= 12.0) return '#ff4d4d';
+  if (tension >= 10.0) return '#ffc107';
+  if(tension == 0.0) return '#a6aaadff';
+  return '#4caf50';
+};
+
 // --- 메인 다이어그램 컴포넌트 ---
 export const MooringDiagram = (): JSX.Element => {
+  // --- 전역 설정값 ---
+  const SHIP_WIDTH = 650;
+  const SHIP_HEIGHT = 1300;
+  const SHIP_CENTER_X = 500; // 350-> 500
+  const SHIP_CENTER_Y = 400;
+
   const shipX = SHIP_CENTER_X - SHIP_WIDTH / 2;
   const shipY = SHIP_CENTER_Y - SHIP_HEIGHT / 2;
+
+  // --- 💡 수정된 부분: 부두 위치를 중앙 정렬 방식으로 계산 ---
+  const DOCK_WIDTH = 700;
+  const DOCK_HEIGHT = 1600;
+  const DOCK_CENTER_Y = SHIP_CENTER_Y; // 부두의 중심 Y를 선박의 중심 Y와 동일하게 설정
+  const dockX = -200;
+  const dockY = DOCK_CENTER_Y - DOCK_HEIGHT / 2; // 중심점에서 높이의 절반을 빼서 상단 Y좌표 계산
+  // --- 수정 끝 ---
 
   const bollardPositions = {
     line_1: { x: 286, y: 390 }, line_2: { x: 273, y: 440 },
     line_3: { x: 268, y: 850 }, line_4: { x: 272, y: 900 },
     line_5: { x: 365, y: 900 }, line_6: { x: 374, y: 850 },
     line_7: { x: 370, y: 440 }, line_8: { x: 351, y: 390 },
+    //line_1: { x: 286, y: 390 }, line_2: { x: 273, y: 440 },
+    //line_3: { x: 268, y: 850 }, line_4: { x: 272, y: 900 },
+    //line_5: { x: 365, y: 900 }, line_6: { x: 374, y: 850 },
+    //line_7: { x: 370, y: 440 }, line_8: { x: 351, y: 390 },
   };
 
+  // bollander 위치 조절
   const pierCleatPositions = {
-    cleat1: { x: 100, y: 100 }, cleat2: { x: 100, y: 230},
-    cleat3: { x: 100, y: 570 }, cleat4: { x: 100, y: 700 },
+    cleat1: { x: 250, y: 130 }, cleat2: { x: 250, y: 220},
+    cleat3: { x: 250, y: 590 }, cleat4: { x: 250, y: 660 },
     cleat5: { x: 580, y: 700 }, cleat6: { x: 580, y: 570 },
     cleat7: { x: 580, y: 230 }, cleat8: { x: 580, y: 100 },
   };
@@ -175,7 +190,18 @@ export const MooringDiagram = (): JSX.Element => {
   useEffect(() => {
     const simulationInterval = setInterval(() => {
       setLines(currentLines =>
-        currentLines.map(line => ({ ...line, tension: Math.random() * 6 + 7 }))
+        currentLines.map(line => {
+          // 'Line 5' 같은 id에서 공백을 기준으로 나눈 뒤, 두 번째 요소('5')를 숫자로 변환합니다.
+          const lineNumber = parseInt(line.id.split(' ')[1]);
+          
+          // 5번 이상인 라인은 장력을 0으로 설정합니다.
+          if (lineNumber >= 5) {
+            return { ...line, tension: 0 };
+          }
+          
+          // 1~4번 라인은 기존처럼 랜덤 장력을 할당합니다.
+          return { ...line, tension: Math.random() * 6 + 7 };
+        })
       );
     }, 2000);
     return () => clearInterval(simulationInterval);
@@ -184,26 +210,28 @@ export const MooringDiagram = (): JSX.Element => {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       
-      {/* --- 💡 수정된 부분 시작 --- */}
       <div style={{
-        position: 'absolute',       // 절대 위치 지정
-        top: '100px',                // 위에서 20px
-        right: '100px',              // 오른쪽에서 20px
-        zIndex: 10,                 // 다른 요소들 위에 표시되도록 z-index 설정
-        color: 'white',             // 이 div 안의 모든 텍스트 색상을 흰색으로 지정
-        backgroundColor: 'rgba(44, 62, 80, 0.8)', // 가독성을 위한 반투명 배경
+        position: 'absolute',
+        top: '100px',
+        right: '100px',
+        zIndex: 10,
+        color: 'white',
+        backgroundColor: 'rgba(44, 62, 80, 0.8)',
         padding: '20px',
         borderRadius: '10px',
-        border: '1px solid #7f8c8d' // 모달과 스타일 통일
+        border: '1px solid #7f8c8d'
       }}>
         <WeatherDisplay />
       </div>
-      {/* --- 수정된 부분 끝 --- */}
 
       <svg
         viewBox="0 0 1200 800"
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       >
+        {/* 부두 이미지 */}
+        <image href={dock} x={dockX} y={dockY} width={DOCK_WIDTH} height={DOCK_HEIGHT} />
+        
+        {/* 기존 선박 이미지 */}
         <image href={ship} x={shipX} y={shipY} width={SHIP_WIDTH} height={SHIP_HEIGHT} />
         
         {lines.map((line) => (
