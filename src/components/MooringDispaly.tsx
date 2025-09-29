@@ -1,89 +1,119 @@
-import React, { useState, useEffect } from 'react';
-import { WeatherData } from '../types/weather';
+// src/components/MooringDisplay.tsx
 
-export const WeatherDisplay: React.FC = () => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
+import React, { useState, useEffect, useCallback } from 'react';
+// Recharts에서 필요한 컴포넌트들을 임포트합니다.
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import './MooringDisplay.css'; // 새로운 레이아웃을 위한 CSS
+
+// --- 타입 정의 ---
+interface MooringDetails {
+  id: number;
+  manufacturer: string;
+  model: string;
+  usageTime: number;
+  maintenanceDate: string;
+}
+interface TensionLog {
+  time: string;
+  tension: number;
+}
+interface FullLineData {
+  details: MooringDetails;
+  history: TensionLog[];
+  warningCount: number;
+  dangerCount: number;
+}
+interface MooringDisplayProps {
+  lineId: number;
+  onClose: () => void;
+}
+
+// --- 컴포넌트 ---
+const MooringDisplay: React.FC<MooringDisplayProps> = ({ lineId, onClose }) => {
+  const [data, setData] = useState<FullLineData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadWeather = async (): Promise<void> => {
+  // 데이터를 불러오는 함수 (재사용을 위해 useCallback 사용)
+  const fetchData = useCallback(async () => {
     try {
-      setLoading(true);
-      const data = await window.ipcRenderer.invoke('get-weather-data') as WeatherData;
-      setWeather(data);
+      setIsLoading(true);
       setError(null);
+      // 1단계에서 만든 새로운 IPC 핸들러를 호출합니다.
+      const result = await window.ipcRenderer.invoke('get-line-full-details', lineId);
+      if (result) {
+        setData(result);
+      } else {
+        setError('데이터를 불러오는 데 실패했습니다.');
+      }
     } catch (err) {
-      setError('날씨 정보를 불러올 수 없습니다.');
-      console.error('날씨 로드 오류:', err);
+      console.error(err);
+      setError('오류가 발생했습니다.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, [lineId]);
 
+  // 컴포넌트가 처음 나타날 때 데이터를 불러옵니다.
   useEffect(() => {
-    loadWeather();
-    const interval = setInterval(loadWeather, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const getWindDirection = (degrees: number): string => {
-    const directions = ['북', '북북동', '북동', '동북동', '동', '동남동', '남동', '남남동', 
-                       '남', '남남서', '남서', '서남서', '서', '서북서', '북서', '북북서'];
-    return directions[Math.round(degrees / 22.5) % 16] || '북';
-  };
-
-  if (loading) return <div className="loading">날씨 정보를 불러오는 중...</div>;
-  if (error) return <div className="error">오류: {error}</div>;
-  if (!weather) return <div className="no-data">날씨 정보가 없습니다.</div>;
+    fetchData();
+  }, [fetchData]);
+  
+  // 차트 데이터 가공 (시간 포맷팅)
+  const formattedHistory = data?.history.map(log => ({
+    ...log,
+    // 시간만 간단히 표시 (예: "14:30")
+    time: new Date(log.time).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }),
+  })).reverse(); // 시간 순서대로 보이도록 배열을 뒤집습니다.
 
   return (
-    <div className="weather-display">
-      <div className="weather-header">
-        <h2>대한해협 해양 날씨 정보</h2>
-        <div className="location">{weather.location}</div>
-      </div>
-      
-      <div className="weather-main">
-        <div className="weather-icon-section">
-          <img 
-            src={`https://openweathermap.org/img/wn/${weather.weatherIcon}@2x.png`} 
-            alt={weather.weatherDescription}
-            className="weather-icon"
-          />
-          <div className="weather-condition">
-            <div className="main-condition">{weather.weatherCondition}</div>
-            <div className="description">{weather.weatherDescription}</div>
-          </div>
-        </div>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="display-container" onClick={(e) => e.stopPropagation()}>
+        <button className="close-button" onClick={onClose}>×</button>
         
-        <div className="temperature-section">
-          <div className="main-temp">{weather.temperature}°C</div>
-        </div>
-      </div>
+        {isLoading && <p>데이터를 불러오는 중...</p>}
+        {error && <p className="error-message">{error}</p>}
+        
+        {data && (
+          <>
+            {/* 1. 맨 윗단: 계류줄 정보 */}
+            <header className="display-header">
+              <h1>Line #{data.details.id}</h1>
+              <span>{data.details.manufacturer} | {data.details.model}</span>
+            </header>
 
-      <div className="weather-grid">
-        <div className="weather-item">
-          <span className="label">풍속</span>
-          <span className="value">{weather.windSpeed} m/s</span>
-        </div>
-        <div className="weather-item">
-          <span className="label">풍향</span>
-          <span className="value">{getWindDirection(weather.windDirection)} ({weather.windDirection}°)</span>
-        </div>
-        <div className="weather-item wave-height">
-          <span className="label">파고</span>
-          <span className="value">{weather.waveHeight} m</span>
-          {weather.waveHeightTime && (
-            <div className="wave-time">
-              측정시간: {new Date(weather.waveHeightTime).toLocaleString()}
+            {/* 2. 중간: 장력 그래프 */}
+            <div className="display-chart">
+              <h3>최근 12시간 장력 그래프</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={formattedHistory}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" fontSize={12} />
+                  <YAxis label={{ value: 'Tension (kN)', angle: -90, position: 'insideLeft' }} fontSize={12} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="tension" stroke="#8884d8" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="timestamp">
-        마지막 업데이트: {new Date(weather.timestamp).toLocaleString()}
+
+            {/* 3. 하단: 상세 정보 */}
+            <div className="display-info">
+              <div><strong>경고 횟수:</strong><span>{data.warningCount} 회</span></div>
+              <div><strong>위험 횟수:</strong><span>{data.dangerCount} 회</span></div>
+              <div><strong>마지막 정비:</strong><span>{new Date(data.details.maintenanceDate).toLocaleDateString()}</span></div>
+              <div><strong>총 사용 시간:</strong><span>{data.details.usageTime} 시간</span></div>
+            </div>
+
+            {/* 4. 맨 오른쪽 하단: 버튼 */}
+            <div className="display-actions">
+              <button onClick={fetchData}>데이터 가져오기</button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
+
+export default MooringDisplay;
