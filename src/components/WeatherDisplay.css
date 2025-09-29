@@ -1,0 +1,170 @@
+/* ================================================= */
+/* 날씨 표시 컴포넌트 스타일 (WeatherDisplay.css)      */
+/* ================================================= */
+
+/* --- 전체 카드 컨테이너 --- */
+.weather-display {
+  padding: 0.7rem; /* 수정: 내부 여백 추가 축소 */
+  color: #c9d7e4;
+  width: 220px; /* 수정: 전체 너비 추가 축소 */
+  min-height: 140px;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* 컨테이너 쿼리 설정 */
+  container-type: inline-size;
+  container-name: weather-card;
+}
+
+/* --- 헤더: 제목과 지역 --- */
+.weather-header {
+  text-align: center;
+  margin-bottom: 0.7rem; /* 수정 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.5rem; /* 수정 */
+}
+
+.weather-header h2 {
+  margin: 0 0 0.2rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.location {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* --- 메인 정보: 아이콘, 날씨 상태, 온도 --- */
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem; /* 수정 */
+}
+
+.weather-icon-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.weather-icon {
+  width: 38px; /* 수정: 아이콘 크기 축소 */
+  height: 38px; /* 수정 */
+}
+
+.weather-condition,
+.temperature-section {
+  text-align: left;
+}
+
+.main-condition {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  text-transform: capitalize;
+}
+
+.description {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: capitalize;
+}
+
+.main-temp {
+  font-size: 1.7rem; /* 수정: 온도 폰트 크기 축소 */
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* --- 세부 정보 그리드 --- */
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem; /* 수정 */
+}
+
+.weather-item {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.5rem; /* 수정 */
+  border-radius: 8px;
+  text-align: center;
+}
+
+.weather-item.wave-height {
+  grid-column: span 2;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.label {
+  display: block;
+  font-size: 0.65rem;
+  opacity: 0.8;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+}
+
+.value {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.wave-time {
+  font-size: 0.6rem;
+  opacity: 0.7;
+  margin-top: 0.2rem;
+}
+
+/* --- 마지막 업데이트 시간 --- */
+.timestamp {
+  text-align: right;
+  font-size: 0.65rem;
+  opacity: 0.7;
+  padding-top: 0.5rem; /* 수정 */
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* --- 로딩, 에러, 데이터 없음 상태 --- */
+.loading, .error, .no-data {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: #213547;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+
+/* ===================================================== */
+/* ✨ 컨테이너 쿼리: 반응형 크기 조정 ✨                  */
+/* ===================================================== */
+@container weather-card (max-width: 180px) {
+  .weather-display {
+    padding: 0.6rem;
+  }
+
+  .weather-header h2 {
+    font-size: 0.9rem;
+  }
+
+  .main-temp {
+    font-size: 1.6rem;
+  }
+
+  .weather-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .value {
+    font-size: 0.75rem;
+  }
+
+  .label {
+    font-size: 0.6rem;
+  }
+}

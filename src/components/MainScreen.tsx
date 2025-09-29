@@ -4,6 +4,7 @@ import ship from '../assets/ship.png';
 import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
 import dock from '../assets/dock_good_nu5.png';
+//import '../style.css';
 // --- 날씨 컴포넌트 임포트 ---
 import { WeatherDisplay } from './WeatherDisplay';
 
@@ -170,8 +171,8 @@ export const MooringDiagram = (): JSX.Element => {
   };
 
   const iconPositions = {
-    graph:   { x: 860, y: 630, width: 30, height: 30 , label : '계류줄 장력 그래프'},
-    setting: { x: 860, y: 690, width: 30, height: 30 ,label : '설정'},
+    graph:   { x: 760, y: 700, width: 20, height: 20 , label : '계류줄 장력 그래프'},
+    setting: { x: 1000, y: 700, width: 20, height: 20 ,label : '설정'},
   };
 
   const [lines, setLines] = useState<MooringLineData[]>([
@@ -212,8 +213,8 @@ export const MooringDiagram = (): JSX.Element => {
       
       <div style={{
         position: 'absolute',
-        top: '100px',
-        right: '100px',
+        top: '50px',
+        right: '175px',
         zIndex: 10,
         color: 'white',
         backgroundColor: 'rgba(44, 62, 80, 0.8)',

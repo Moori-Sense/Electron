@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { WeatherData } from '../types/weather';
+import './WeatherDisplay.css';
 
 export const WeatherDisplay: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
