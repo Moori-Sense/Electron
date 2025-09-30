@@ -1,14 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import path, { dirname } from 'node:path'
 import fs from 'node:fs'
-// --- ⬇️ dotenv 임포트 수정 (오류 해결) ⬇️ ---
 import dotenv from 'dotenv'
-
-// --- ⬆️ dotenv 임포트 수정 (오류 해결) ⬆️ ---
 import Database from 'better-sqlite3'
 import { queries } from '../db/queries'
-import { dirname } from "node:path";
 
 // --- ES 모듈 환경을 위한 경로 설정 ---
 const __filename = fileURLToPath(import.meta.url);
@@ -60,21 +56,17 @@ try {
 // ====================================================================
 
 // ====================================================================
-// ===== ⬇️ [여기에 코드 추가] 개발용 모의 데이터 자동 생성 ⬇️ =====
+// ===== ⬇️ 개발용 모의 데이터 자동 생성 ⬇️ =====
 // ====================================================================
 if (!app.isPackaged) {
   try {
-    // 1. 데이터가 이미 있는지 확인
     const countStmt = db.prepare('SELECT COUNT(*) as count FROM TensionLogs');
-    const result = countStmt.get() as { count: number }; // 타입스크립트 환경을 고려하여 타입 지정
+    const result = countStmt.get() as { count: number };
 
-    // 2. 데이터가 1000개 미만일 때만 새로 생성
     if (result.count < 1000) {
       console.log('TensionLogs에 모의 데이터를 생성합니다...');
-      
       const seedStmt = db.prepare(queries.INSERT_BULK_MOCK_TENSION_LOGS);
-      const info = seedStmt.run(1000); // 1000개의 데이터를 생성하도록 요청
-
+      const info = seedStmt.run(1000);
       console.log(`✅ ${info.changes}개의 모의 데이터가 성공적으로 추가되었습니다.`);
     } else {
       console.log('ℹ️ TensionLogs에 이미 충분한 데이터가 있어 모의 데이터 생성을 건너뜁니다.');
@@ -84,7 +76,7 @@ if (!app.isPackaged) {
   }
 }
 // ====================================================================
-// ===== ⬆️ [코드 추가 완료] ⬆️ =====
+// ===== ⬆️ 개발용 모의 데이터 자동 생성 종료 ⬆️ =====
 // ====================================================================
 
 
@@ -120,8 +112,85 @@ ipcMain.handle('getMooringLineData', async (_event, lineId: number) => {
   }
 });
 
+// --- ✨ [수정됨] 그래프용 장력 이력 데이터 조회 핸들러 ---
+ipcMain.handle('get-tension-history', async () => {
+  try {
+    console.log('[Main Process] 전체 장력 이력 조회를 시작합니다.');
+    
+;
+
+    const stmt = db.prepare(queries.PIVOT_GET_TENSION_HISTORY);
+    const reshapedData = stmt.all();
+    
+    console.log(`[Main Process] ${reshapedData.length}개의 시간대별 데이터로 변환 완료. 렌더러로 전송합니다.`);
+    
+    // 2. 가공된 데이터를 바로 반환
+    return reshapedData;
+
+  } catch (error) {
+    console.error("DB 조회 중 오류 발생:", error);
+    return [];
+  }
+});
+
 // ====================================================================
 // ===== ⬆️ IPC 핸들러 등록 종료 ⬆️ =====
+// ====================================================================
+
+
+
+
+// ====================================================================
+// ===== ⬇️ [수정됨] 개발용 모의 데이터 자동 생성 ⬇️ =====
+// ====================================================================
+if (!app.isPackaged) {
+  try {
+    const countStmt = db.prepare('SELECT COUNT(*) as count FROM TensionLogs');
+    const result = countStmt.get() as { count: number };
+
+    if (result.count < 1000) {
+      console.log('TensionLogs에 연속적인 모의 데이터를 생성합니다...');
+      
+      // 1. 대량 삽입을 위한 트랜잭션 시작 (훨씬 빠름)
+      const insert = db.transaction((logs) => {
+        const stmt = db.prepare(queries.INSERT_TENSION_LOG); // 개별 로그 삽입 쿼리
+        for (const log of logs) {
+          stmt.run(log.lineId, log.time, log.tension);
+        }
+      });
+
+      // 2. 1초씩 줄어드는 연속적인 데이터 생성
+      const mockLogs = [];
+      let currentTime = new Date(); // 현재 시간에서 시작
+
+      // 125개의 타임스탬프 * 8개 라인 = 1000개 데이터
+      for (let i = 0; i < 125; i++) {
+        // 모든 라인(1~8)에 대해 데이터 생성
+        for (let lineId = 1; lineId <= 8; lineId++) {
+          mockLogs.push({
+            lineId: lineId,
+            time: currentTime.toISOString(), // ISO 형식으로 시간 저장
+            // tension 값을 약간의 무작위성을 더해 생성
+            tension: 25 + (lineId * 0.5) + (Math.random() * 5 - 2.5)
+          });
+        }
+        // 다음 데이터 포인트를 위해 1초씩 시간을 과거로 이동
+        currentTime.setSeconds(currentTime.getSeconds() - 1);
+      }
+      
+      // 3. 생성된 모든 데이터를 한 번에 DB에 삽입
+      insert(mockLogs);
+
+      console.log(`✅ ${mockLogs.length}개의 연속적인 모의 데이터가 성공적으로 추가되었습니다.`);
+    } else {
+      console.log('ℹ️ TensionLogs에 이미 충분한 데이터가 있어 모의 데이터 생성을 건너뜁니다.');
+    }
+  } catch (error) {
+    console.error('❗️ 모의 데이터 생성에 실패했습니다:', error);
+  }
+}
+// ====================================================================
+// ===== ⬆️ [코드 수정 완료] ⬆️ =====
 // ====================================================================
 
 
@@ -135,6 +204,8 @@ function createWindow() {
       contextIsolation: true,
     },
     show: false,
+    width: 1920,
+    height: 1080,
   })
 
   win.webContents.on('did-finish-load', () => {
@@ -167,4 +238,3 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(createWindow)
-

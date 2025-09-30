@@ -81,7 +81,7 @@ function App() {
           />
         );
       case 'allTension':
-        return <TensionGraphScreen history={tensionHistory} onGoBack={handleGoBack} />;
+        return <TensionGraphScreen onGoBack={handleGoBack} />;
       case 'settings':
         return <MainScreenSetting onNavigate={setCurrentView} currentMode={currentView} />;
       default:

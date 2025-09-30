@@ -23,3 +23,7 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
 electron.contextBridge.exposeInMainWorld("electronAPI", {
   getMooringLineData: (lineId) => electron.ipcRenderer.invoke("getMooringLineData", lineId)
 });
+electron.contextBridge.exposeInMainWorld("api", {
+  // 이 함수를 호출하면 'get-tension-history' 채널로 Main 프로세스에 요청을 보냅니다.
+  getTensionHistory: () => electron.ipcRenderer.invoke("get-tension-history")
+});
