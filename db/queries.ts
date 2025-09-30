@@ -163,11 +163,20 @@ export const queries = {
     SELECT usageTime FROM MooringLines WHERE id = ?;
   `,
 
+  GET_TENSION_HISTORY: `
+    SELECT lineId, time, tension FROM TensionLogs ORDER BY time DESC LIMIT 1000
+  `,
+
   //---------------------------------mock data 쿼리------------------------------------//
 
   INSERT_MOCK_TENSION_LOG: `
     INSERT INTO TensionLogs (lineId, tension, time) VALUES (?, ?, ?);
   `,
+
+// ✨ [여기에 추가] 개별 장력 로그를 삽입하는 쿼리
+  INSERT_TENSION_LOG: `
+    INSERT INTO TensionLogs (lineId, time, tension) VALUES (?, ?, ?);
+  `,
 
   /**
    * (추가) 지정된 개수(예: 1000개)만큼의 무작위 TensionLog 모의 데이터를 한 번에 생성합니다.
@@ -186,6 +195,26 @@ export const queries = {
       round(80.0 + (abs(random()) % 400) / 10.0, 2),      -- tension: 80.0 ~ 120.0 사이의 무작위 장력
       datetime('now', '-' || n || ' minutes')             -- time: 현재로부터 n분 전
     FROM generate_series;
-  `
+  `,
+
+  PIVOT_GET_TENSION_HISTORY: `
+      SELECT
+        time AS timestamp,
+        MAX(CASE WHEN lineId = 1 THEN tension END) AS line_1,
+        MAX(CASE WHEN lineId = 2 THEN tension END) AS line_2,
+        MAX(CASE WHEN lineId = 3 THEN tension END) AS line_3,
+        MAX(CASE WHEN lineId = 4 THEN tension END) AS line_4,
+        MAX(CASE WHEN lineId = 5 THEN tension END) AS line_5,
+        MAX(CASE WHEN lineId = 6 THEN tension END) AS line_6,
+        MAX(CASE WHEN lineId = 7 THEN tension END) AS line_7,
+        MAX(CASE WHEN lineId = 8 THEN tension END) AS line_8
+      FROM
+        TensionLogs
+      GROUP BY
+        time
+      ORDER BY
+        time DESC
+      LIMIT 1000;
+    `
 
 };

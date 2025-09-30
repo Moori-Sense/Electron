@@ -5,9 +5,9 @@ import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
 import dock from '../assets/dock_good_nu5.png';
 // --- Component Imports ---
-import { WeatherDisplay } from './WeatherDisplay';
+import { WeatherDisplay } from './weatherDisplay';
 // --- ✨ Import ViewMode type from App.tsx ---
-import { ViewMode } from '../App';
+import { ViewMode } from './types';
 
 // --- Type Definitions (MooringLineData, etc.) ---
 interface MooringLineData {
@@ -136,12 +136,12 @@ const getLineColorByTension = (tension: number): string => {
 
 
 // --- ✨ 1. Define Props Type ---
-interface MainScreenLeftProps {
+interface MainScreenRightProps {
   onNavigate: (view: ViewMode) => void;
 }
 
 // --- ✨ 2. Rename component and apply props ---
-export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element => {
+export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Element => {
   // All the existing logic from MooringDiagram remains the same
   const SHIP_WIDTH = 650;
   const SHIP_HEIGHT = 1300;
@@ -236,10 +236,10 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
         ))}
 
         <IconWithLabel
-          href={graph_icon}
-          {...iconPositions.graph}
-          onClick={() => alert('계류줄 그래프 보기')}
-        />
+        href={graph_icon}
+        {...iconPositions.graph}
+        onClick={() => onNavigate('allTension')} // ✨ 'allTension' 화면으로 이동
+      />
         {/* --- ✨ 3. Update onClick event to navigate --- */}
         <IconWithLabel
           href={setting_icon}
@@ -255,4 +255,4 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
   );
 };
 
-export default MainScreenLeft;
+export default MainScreenRight;
