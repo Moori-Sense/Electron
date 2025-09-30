@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewMode } from '../App'; // App.tsx에서 ViewMode 타입을 가져옵니다.
+import { ViewMode } from './types'; // App.tsx에서 ViewMode 타입을 가져옵니다.
 
 // --- 1. Props 타입 정의 ---
 // onNavigate: 화면 전환 함수
