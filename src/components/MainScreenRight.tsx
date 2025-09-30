@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-// --- Image Imports ---
+// --- 이미지 파일 임포트 ---
 import ship from '../assets/ship.png';
 import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
 import dock from '../assets/dock_good_nu5.png';
-// --- Component Imports ---
+// --- 날씨 컴포넌트 임포트 ---
 import { WeatherDisplay } from './WeatherDisplay';
-// --- ✨ Import ViewMode type from App.tsx ---
+// --- ✨ App.tsx로부터 ViewMode 타입을 가져옵니다 ---
 import { ViewMode } from '../App';
 
-// --- Type Definitions (MooringLineData, etc.) ---
+// --- 데이터 타입 정의 ---
 interface MooringLineData {
   id: string;
   tension: number;
@@ -22,7 +22,7 @@ interface MooringLineData {
   diameter?: number;
 }
 
-// --- Child Component: LineInfoModal ---
+// --- 자식 컴포넌트: 계류줄 정보 모달 ---
 interface LineInfoModalProps {
   line: MooringLineData;
   onClose: () => void;
@@ -43,35 +43,35 @@ const LineInfoModal = ({ line, onClose }: LineInfoModalProps): JSX.Element => {
   );
 };
 
-// --- Modal Styles ---
+// 모달 스타일 (기존 코드와 동일)
 const modalStyles: { [key: string]: React.CSSProperties } = {
-  backdrop: {
-    position: 'fixed', top: 0, left: 0,
-    width: '100%', height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    display: 'flex', justifyContent: 'center', alignItems: 'center',
-    zIndex: 1000,
-  },
-  content: {
-    backgroundColor: '#2c3e50',
-    padding: '20px 40px',
-    borderRadius: '8px',
-    color: 'white',
-    border: '1px solid #7f8c8d',
-  },
-  closeButton: {
-    marginTop: '20px',
-    padding: '10px 20px',
-    cursor: 'pointer',
-    backgroundColor: '#3498db',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    fontSize: '16px',
-  }
+    backdrop: {
+        position: 'fixed', top: 0, left: 0,
+        width: '100%', height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
+        zIndex: 1000,
+    },
+    content: {
+        backgroundColor: '#2c3e50',
+        padding: '20px 40px',
+        borderRadius: '8px',
+        color: 'white',
+        border: '1px solid #7f8c8d',
+    },
+    closeButton: {
+        marginTop: '20px',
+        padding: '10px 20px',
+        cursor: 'pointer',
+        backgroundColor: '#3498db',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        fontSize: '16px',
+    }
 };
 
-// --- Child Component: MooringLine ---
+// --- 자식 컴포넌트: 계류줄 ---
 interface MooringLineProps {
   line: MooringLineData;
   onClick: () => void;
@@ -97,7 +97,7 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   );
 };
 
-// --- Child Component: IconWithLabel ---
+// --- 자식 컴포넌트: 아이콘과 레이블 ---
 interface IconWithLabelProps {
   href: string;
   x: number;
@@ -126,7 +126,6 @@ const IconWithLabel = ({ href, x, y, width, height, label, onClick }: IconWithLa
     );
 };
 
-// --- Helper Function ---
 const getLineColorByTension = (tension: number): string => {
   if (tension >= 12.0) return '#ff4d4d';
   if (tension >= 10.0) return '#ffc107';
@@ -134,18 +133,17 @@ const getLineColorByTension = (tension: number): string => {
   return '#4caf50';
 };
 
-
-// --- ✨ 1. Define Props Type ---
-interface MainScreenLeftProps {
+// --- ✨ 1. Props 타입 정의: onNavigate 함수를 받도록 설정 ---
+interface MainScreenRightProps {
   onNavigate: (view: ViewMode) => void;
 }
 
-// --- ✨ 2. Rename component and apply props ---
-export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element => {
-  // All the existing logic from MooringDiagram remains the same
+// --- ✨ 2. 컴포넌트 이름 변경 및 Props 적용 ---
+export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Element => {
+  // --- 기존 MooringDiagram의 모든 로직은 그대로 유지 ---
   const SHIP_WIDTH = 650;
   const SHIP_HEIGHT = 1300;
-  const SHIP_CENTER_X = 760;
+  const SHIP_CENTER_X = 500;
   const SHIP_CENTER_Y = 400;
 
   const shipX = SHIP_CENTER_X - SHIP_WIDTH / 2;
@@ -154,7 +152,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
   const DOCK_WIDTH = 700;
   const DOCK_HEIGHT = 1600;
   const DOCK_CENTER_Y = SHIP_CENTER_Y;
-  const dockX = 670;
+  const dockX = -200;
   const dockY = DOCK_CENTER_Y - DOCK_HEIGHT / 2;
 
   const bollardPositions = {
@@ -165,15 +163,15 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
   };
 
   const pierCleatPositions = {
-    cleat1: { x: 650, y: 130 }, cleat2: { x: 650, y: 230 },
-    cleat3: { x: 650, y: 590 }, cleat4: { x: 650, y: 660 },
-    cleat5: { x: 920, y: 655 }, cleat6: { x: 920, y: 530 },
-    cleat7: { x: 920, y: 283 }, cleat8: { x: 920, y: 130 },
+    cleat1: { x: 250, y: 130 }, cleat2: { x: 250, y: 220},
+    cleat3: { x: 250, y: 590 }, cleat4: { x: 250, y: 660 },
+    cleat5: { x: 580, y: 700 }, cleat6: { x: 580, y: 570 },
+    cleat7: { x: 580, y: 230 }, cleat8: { x: 580, y: 100 },
   };
 
   const iconPositions = {
-    graph:   { x: 120, y: 700, width: 20, height: 20 , label : '계류줄 장력 그래프'},
-    setting: { x: 350, y: 700, width: 20, height: 20 ,label : '설정'},
+    graph:   { x: 760, y: 700, width: 20, height: 20 , label : '계류줄 장력 그래프'},
+    setting: { x: 1000, y: 700, width: 20, height: 20 ,label : '설정'},
   };
 
   const [lines, setLines] = useState<MooringLineData[]>([
@@ -194,7 +192,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
       setLines(currentLines =>
         currentLines.map(line => {
           const lineNumber = parseInt(line.id.split(' ')[1]);
-          if (lineNumber >= 5) {
+          if (lineNumber<= 4) {
             return { ...line, tension: 0 };
           }
           return { ...line, tension: Math.random() * 6 + 7 };
@@ -206,10 +204,11 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      
       <div style={{
         position: 'absolute',
         top: '50px',
-        left: '175px',
+        right: '175px',
         zIndex: 10,
         color: 'white',
         backgroundColor: 'rgba(44, 62, 80, 0.8)',
@@ -240,7 +239,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
           {...iconPositions.graph}
           onClick={() => alert('계류줄 그래프 보기')}
         />
-        {/* --- ✨ 3. Update onClick event to navigate --- */}
+        {/* --- ✨ 3. onClick 이벤트 수정 --- */}
         <IconWithLabel
           href={setting_icon}
           {...iconPositions.setting}
@@ -255,4 +254,4 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
   );
 };
 
-export default MainScreenLeft;
+export default MainScreenRight;

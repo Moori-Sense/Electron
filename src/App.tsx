@@ -3,8 +3,8 @@ import './App.css';
 
 // --- 컴포넌트 임포트 ---
 import LoadingScreen from './components/LoadingScreen';
-import MainScreenRight from './components/MainScreenRight';
-import MainScreenLeft from './components/MainScreenLeft';
+import MainScreenRight from './components/MainScreenLeft';
+import MainScreenLeft from './components/MainScreenRight';
 import MainScreenSetting from './components/SettingScreen';
 
 // --- 보여줄 화면 타입 정의 ---
