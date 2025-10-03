@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // --- 데이터 타입 정의 (MooringLineData) ---
-// MainScreenLeft.tsx에서 사용될 수 있도록 export 합니다.
+// 이 부분은 그대로 유지됩니다.
 export interface MooringLineData {
     id: string;
     tension: number;
@@ -12,62 +12,213 @@ export interface MooringLineData {
     material?: string;
     lastInspected?: string;
     diameter?: number;
-    // 상세 정보 필드
     manufacturer: string;
     model: string;
+    cautionCount: number;
     warningCount: number;
-    dangerCount: number;
     usageHours: number;
 }
 
-// --- 장력 그래프 Placeholder 컴포넌트 ---
+// DB에서 받아올 장력 이력 데이터의 타입을 정의합니다.
+interface TensionHistory {
+ tension: number;
+ timestamp: string;
+}
+
+
+// --- 장력 그래프 컴포넌트 (✨ 최종 수정본) ---
 const TensionGraphPlaceholder = ({ lineId }: { lineId: string }) => {
-    // 임시 그래프 데이터 (랜덤)를 생성합니다. (타입 오류 해결을 위해 명시적으로 number 타입을 지정)
-    const data = Array.from({ length: 20 }, (_, i: number): number => Math.random() * 6 + 7); 
-    const maxVal = 13;
-    const minVal = 7;
+    // 1. 데이터 및 UI 상태 관리
+    const [historyData, setHistoryData] = useState<TensionHistory[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [tooltip, setTooltip] = useState<{
+        x: number;
+        y: number;
+        timestamp: string;
+        tension: number;
+    } | null>(null);
+
+    // 2. 데이터 가져오기
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            setError(null);
+            setTooltip(null);
+            try {
+                const data = await window.api.getTensionHistoryById(lineId);
+                setHistoryData(data);
+            } catch (err: any) {
+                console.error(`'${lineId}'의 장력 이력 조회에 실패했습니다:`, err);
+                setError("데이터를 불러오는 데 실패했습니다.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [lineId]);
+
+    // 3. 로딩, 에러, 데이터 없음 UI 처리
+    if (isLoading) {
+        return <div style={{ color: '#ccc', textAlign: 'center', padding: '80px 0' }}>데이터를 불러오는 중입니다...</div>;
+    }
+    if (error) {
+        return <div style={{ color: '#ff4d4d', textAlign: 'center', padding: '80px 0' }}>오류: {error}</div>;
+    }
+    if (historyData.length === 0) {
+        return <div style={{ color: '#ccc', textAlign: 'center', padding: '80px 0' }}>표시할 데이터가 없습니다.</div>;
+    }
+
+    // 4. 그래프 계산 로직
+    const tensionValues = historyData.map(item => item.tension);
+    const maxVal = Math.ceil(Math.max(...tensionValues, 12)) + 1;
+    const minVal = Math.floor(Math.min(...tensionValues, 7)) - 1;
+
     const width = 600;
     const height = 200;
-    const padding = 20;
+    const padding = 40; // 💡 축 눈금 텍스트를 위한 패딩 증가
 
-    // x축과 y축 스케일링 함수
-    const scaleX = (i: number): number => padding + i * ((width - 2 * padding) / (data.length - 1));
-    const scaleY = (val: number): number => height - padding - (val - minVal) / (maxVal - minVal) * (height - 2 * padding);
-
-    const points = data.map((val: number, i: number) => `${scaleX(i)},${scaleY(val)}`).join(' ');
+    const scaleX = (i: number): number => {
+        if (tensionValues.length <= 1) return width / 2;
+        return padding + i * ((width - 2 * padding) / (tensionValues.length - 1));
+    };
+    const scaleY = (val: number): number => {
+        if (maxVal === minVal) return height / 2;
+        return height - padding - ((val - minVal) / (maxVal - minVal)) * (height - 2 * padding);
+    };
+    const points = tensionValues.map((val, i) => `${scaleX(i)},${scaleY(val)}`).join(' ');
     
+    // 💡 5. 축 눈금(Ticks) 데이터 생성
+    // Y축(장력) 눈금 생성
+    const yAxisTicks = [];
+    const tickCount = 5; // 5개의 눈금을 생성
+    const tickIncrement = (maxVal - minVal) / (tickCount - 1);
+    for (let i = 0; i < tickCount; i++) {
+        yAxisTicks.push(minVal + (i * tickIncrement));
+    }
+
+    // X축(시간) 눈금 생성 (데이터의 시작, 중간, 끝 지점 등)
+    const xAxisTicks = [];
+    const numDataPoints = historyData.length;
+    if (numDataPoints > 1) {
+        const numTicksToShow = Math.min(numDataPoints, 5); // 최대 5개의 시간 눈금
+        for (let i = 0; i < numTicksToShow; i++) {
+            const index = Math.floor(i * (numDataPoints - 1) / (numTicksToShow - 1));
+            xAxisTicks.push({ index, timestamp: historyData[index].timestamp });
+        }
+    } else if (numDataPoints === 1) {
+        xAxisTicks.push({ index: 0, timestamp: historyData[0].timestamp });
+    }
+
+    // 6. 마우스 이벤트 핸들러
+    const handleMouseMove = (event: React.MouseEvent<SVGRectElement>) => {
+        const svgRect = event.currentTarget.getBoundingClientRect();
+        const mouseX = event.clientX - svgRect.left;
+        const index = Math.round(((mouseX - padding) / (width - 2 * padding)) * (historyData.length - 1));
+
+        if (index >= 0 && index < historyData.length) {
+            const dataPoint = historyData[index];
+            setTooltip({
+                x: scaleX(index),
+                y: scaleY(dataPoint.tension),
+                timestamp: dataPoint.timestamp,
+                tension: dataPoint.tension,
+            });
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setTooltip(null);
+    };
+    
+    // 7. SVG 그래프 렌더링
     return (
         <div style={{ padding: '20px', backgroundColor: '#2c3e50', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.5)' }}>
             <h3 style={{ color: 'white', marginBottom: '15px', textAlign: 'center' }}>
-                최근 24시간 장력 그래프
+                최근 장력 그래프
             </h3>
-            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="250px" style={{ border: '1px solid #34495e', borderRadius: '4px' }}>
-                {/* Y-축 라벨 (최대) */}
-                <text x={padding / 2} y={scaleY(maxVal)} fill="#7f8c8d" fontSize="12" textAnchor="middle">{maxVal.toFixed(0)}t</text>
-                {/* Y-축 라벨 (최소) */}
-                <text x={padding / 2} y={scaleY(minVal)} fill="#7f8c8d" fontSize="12" textAnchor="middle">{minVal.toFixed(0)}t</text>
+            <svg viewBox={`0 0 ${width} ${height}`} width="100%" height="250px" style={{ border: '1px solid #34495e', borderRadius: '4px', overflow: 'visible' }}>
+                {/* 💡 Y축 눈금 및 그리드 라인 */}
+                {yAxisTicks.map((tick, i) => (
+                    <g key={`y-tick-${i}`} className="y-tick">
+                        <line 
+                            x1={padding} y1={scaleY(tick)} 
+                            x2={width - padding} y2={scaleY(tick)} 
+                            stroke="#34495e" strokeWidth="1" 
+                        />
+                        <text 
+                            x={padding - 8} y={scaleY(tick)} 
+                            fill="#7f8c8d" fontSize="10" 
+                            textAnchor="end" alignmentBaseline="middle"
+                        >
+                            {tick.toFixed(1)}
+                        </text>
+                    </g>
+                ))}
                 
-                {/* 경고선 (10t) */}
-                <line x1={padding} y1={scaleY(10)} x2={width - padding} y2={scaleY(10)} stroke="#ffc107" strokeDasharray="4 4" strokeOpacity="0.5" />
-                {/* 위험선 (12t) */}
-                <line x1={padding} y1={scaleY(12)} x2={width - padding} y2={scaleY(12)} stroke="#ff4d4d" strokeDasharray="4 4" strokeOpacity="0.5" />
+                {/* 💡 X축 눈금 및 그리드 라인 */}
+                {xAxisTicks.map((tick, i) => (
+                    <g key={`x-tick-${i}`} className="x-tick">
+                         <line 
+                            x1={scaleX(tick.index)} y1={padding} 
+                            x2={scaleX(tick.index)} y2={height - padding}
+                            stroke="#34495e" strokeWidth="1" 
+                        />
+                        <text 
+                            x={scaleX(tick.index)} y={height - padding + 15} 
+                            fill="#7f8c8d" fontSize="10" 
+                            textAnchor="middle"
+                        >
+                            {new Date(tick.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}
+                        </text>
+                    </g>
+                ))}
 
-                {/* 그래프 선 */}
-                <polyline
-                    fill="none"
-                    stroke="#3498db"
-                    strokeWidth="2"
-                    points={points}
+                {/* 축 라벨 (시간, 장력) */}
+                <text x={width / 2} y={height - 5} fill="#7f8c8d" fontSize="12" textAnchor="middle">시간 →</text>
+                <text transform={`rotate(-90, 15, ${height / 2})`} x="15" y={height / 2} fill="#7f8c8d" fontSize="12" textAnchor="middle">장력 (t)</text>
+                
+                {/* 기준선 (주의: 10t, 위험: 12t) */}
+                <line x1={padding} y1={scaleY(100)} x2={width - padding} y2={scaleY(100)} stroke="#ffc107" strokeDasharray="4 4" strokeOpacity="0.7" />
+                <line x1={padding} y1={scaleY(120)} x2={width - padding} y2={scaleY(120)} stroke="#ff4d4d" strokeDasharray="4 4" strokeOpacity="0.7" />
+
+                {/* 메인 그래프 라인 */}
+                <polyline fill="none" stroke="#3498db" strokeWidth="2" points={points} />
+
+                {/* 마우스 이벤트를 감지할 투명한 사각형 */}
+                <rect
+                    x={padding} y={padding}
+                    width={width - 2 * padding} height={height - 2 * padding}
+                    fill="transparent"
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
                 />
+
+                {/* 툴팁 렌더링 */}
+                {tooltip && (
+                    <g style={{ pointerEvents: 'none' }}>
+                        <line x1={tooltip.x} y1={padding} x2={tooltip.x} y2={height - padding} stroke="#7f8c8d" strokeDasharray="3 3" />
+                        <circle cx={tooltip.x} cy={tooltip.y} r="5" fill="#3498db" stroke="white" strokeWidth="2" />
+                        <g transform={`translate(${tooltip.x + 15}, ${tooltip.y - 45})`}>
+                            <rect width="165" height="40" fill="rgba(0,0,0,0.75)" rx="4" />
+                            <text x="8" y="16" fill="white" fontSize="12">
+                                {new Date(tooltip.timestamp).toLocaleString('ko-KR')}
+                            </text>
+                            <text x="8" y="31" fill="#3498db" fontSize="12" fontWeight="bold">
+                                장력: {tooltip.tension.toFixed(2)}t
+                            </text>
+                        </g>
+                    </g>
+                )}
             </svg>
-            <p style={{ color: '#7f8c8d', fontSize: '12px', textAlign: 'center', marginTop: '10px' }}>
-                (데이터는 현재 시뮬레이션 기반의 임시값입니다.)
-            </p>
         </div>
     );
 };
 
+
 // --- 모달 상세 정보 스타일 ---
+// 이 부분은 그대로 유지됩니다.
 const modalStyles: { [key: string]: React.CSSProperties } = {
     backdrop: {
         position: 'fixed', top: 0, left: 0,
@@ -152,13 +303,14 @@ const detailStyles: { [key: string]: React.CSSProperties } = {
 };
 
 // --- Mooring Line Info Modal 컴포넌트 ---
+// 이 부분은 그대로 유지됩니다.
 interface LineInfoModalProps {
     line: MooringLineData;
     onClose: () => void;
 }
 
 export const LineInfoModal = ({ line, onClose }: LineInfoModalProps): JSX.Element => {
-    const { id, manufacturer, model, lastInspected, usageHours, warningCount, dangerCount } = line;
+    const { id, manufacturer, model, lastInspected, usageHours, cautionCount, warningCount } = line;
 
     return (
         <div style={modalStyles.backdrop} onClick={onClose}>
@@ -191,11 +343,11 @@ export const LineInfoModal = ({ line, onClose }: LineInfoModalProps): JSX.Elemen
                     <div style={detailStyles.statsContainer}>
                         <div style={detailStyles.statItem}>
                             <strong>경고 횟수:</strong> 
-                            <span style={{color: '#ffc107', fontWeight: 'bold', marginLeft: '5px'}}>{warningCount}회</span>
+                            <span style={{color: '#ffc107', fontWeight: 'bold', marginLeft: '5px'}}>{cautionCount}회</span>
                         </div>
                         <div style={detailStyles.statItem}>
                             <strong>위험 횟수:</strong> 
-                            <span style={{color: '#ff4d4d', fontWeight: 'bold', marginLeft: '5px'}}>{dangerCount}회</span>
+                            <span style={{color: '#ff4d4d', fontWeight: 'bold', marginLeft: '5px'}}>{warningCount}회</span>
                         </div>
                         <div style={detailStyles.statItem}>
                             <strong>최종 정비:</strong> 
@@ -203,7 +355,7 @@ export const LineInfoModal = ({ line, onClose }: LineInfoModalProps): JSX.Elemen
                         </div>
                         <div style={detailStyles.statItem}>
                             <strong>총 사용 시간:</strong> 
-                            <span style={{marginLeft: '5px'}}>{usageHours.toLocaleString()}시간</span>
+                            <span style={{marginLeft: '5px'}}>{usageHours.toLocaleString()}분</span>
                         </div>
                     </div>
                     

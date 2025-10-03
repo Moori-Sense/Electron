@@ -19,8 +19,8 @@ interface MooringLineProps {
 }
 
 const getLineColorByTension = (tension: number): string => {
-  if (tension >= 12.0) return '#ff4d4d';
-  if (tension >= 10.0) return '#ffc107';
+  if (tension >= 120) return '#ff4d4d';
+  if (tension >= 100) return '#ffc107';
   if(tension === 0.0) return '#a6aaad'; // '#a6aaadff'에서 ff 제거
   return '#4caf50';
 };
@@ -115,36 +115,87 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
     setting: { x: 1000, y: 700, width: 20, height: 20 ,label : '설정'},
   };
   
-  // ✨ 상세 정보를 포함하는 확장된 목업 데이터 추가
-  const initialLines: MooringLineData[] = [
-    { id: 'Line 8', tension: 8.5,  material: 'Dyneema', diameter: 80, lastInspected: '2025-08-01', manufacturer: 'RopeTech', model: 'DynaMax-A', warningCount: 5, dangerCount: 1, usageHours: 1250, startX: shipX + bollardPositions.line_1.x, startY: shipY + bollardPositions.line_1.y, endX: pierCleatPositions.cleat1.x, endY: pierCleatPositions.cleat1.y },
-    { id: 'Line 7', tension: 9.2,  material: 'Polyester', diameter: 85, lastInspected: '2025-08-02', manufacturer: 'FiberPro', model: 'PolyStrong-B', warningCount: 8, dangerCount: 2, usageHours: 1500, startX: shipX + bollardPositions.line_2.x, startY: shipY + bollardPositions.line_2.y, endX: pierCleatPositions.cleat2.x, endY: pierCleatPositions.cleat2.y },
-    { id: 'Line 6', tension: 8.8,  material: 'Polyester', diameter: 85, lastInspected: '2025-08-03', manufacturer: 'FiberPro', model: 'PolyStrong-B', warningCount: 3, dangerCount: 0, usageHours: 900, startX: shipX + bollardPositions.line_3.x, startY: shipY + bollardPositions.line_3.y, endX: pierCleatPositions.cleat3.x, endY: pierCleatPositions.cleat3.y },
-    { id: 'Line 5', tension: 9.5,  material: 'Dyneema', diameter: 80, lastInspected: '2025-08-04', manufacturer: 'RopeTech', model: 'DynaMax-A', warningCount: 6, dangerCount: 1, usageHours: 1800, startX: shipX + bollardPositions.line_4.x, startY: shipY + bollardPositions.line_4.y, endX: pierCleatPositions.cleat4.x, endY: pierCleatPositions.cleat4.y },
-    { id: 'Line 4', tension: 12.1, material: 'Dyneema', diameter: 80, lastInspected: '2025-09-11', manufacturer: 'RopeTech', model: 'DynaMax-A', warningCount: 12, dangerCount: 4, usageHours: 2000, startX: shipX + bollardPositions.line_5.x, startY: shipY + bollardPositions.line_5.y, endX: pierCleatPositions.cleat5.x, endY: pierCleatPositions.cleat5.y },
-    { id: 'Line 3', tension: 11.5, material: 'Polyester', diameter: 85, lastInspected: '2025-09-12', manufacturer: 'FiberPro', model: 'PolyStrong-B', warningCount: 9, dangerCount: 3, usageHours: 1700, startX: shipX + bollardPositions.line_6.x, startY: shipY + bollardPositions.line_6.y, endX: pierCleatPositions.cleat6.x, endY: pierCleatPositions.cleat6.y },
-    { id: 'Line 2', tension: 11.8, material: 'Polyester', diameter: 85, lastInspected: '2025-09-13', manufacturer: 'FiberPro', model: 'PolyStrong-B', warningCount: 15, dangerCount: 5, usageHours: 2500, startX: shipX + bollardPositions.line_7.x, startY: shipY + bollardPositions.line_7.y, endX: pierCleatPositions.cleat7.x, endY: pierCleatPositions.cleat7.y },
-    { id: 'Line 1', tension: 12.5, material: 'Dyneema', diameter: 80, lastInspected: '2025-09-14', manufacturer: 'RopeTech', model: 'DynaMax-A', warningCount: 10, dangerCount: 3, usageHours: 2200, startX: shipX + bollardPositions.line_8.x, startY: shipY + bollardPositions.line_8.y, endX: pierCleatPositions.cleat8.x, endY: pierCleatPositions.cleat8.y },
-  ];
-    
-  const [lines, setLines] = useState<MooringLineData[]>(initialLines);
+  const [lines, setLines] = useState<MooringLineData[]>([]);
   const [selectedLine, setSelectedLine] = useState<MooringLineData | null>(null);
 
-  useEffect(() => {
-    const simulationInterval = setInterval(() => {
-      setLines(currentLines =>
-        currentLines.map(line => {
-          const lineNumber = parseInt(line.id.split(' ')[1]);
-          if (lineNumber<= 4) {
-            return { ...line, tension: 0 };
-          }
-          // 시뮬레이션 장력 값에 타입 명시 및 소수점 처리
-          return { ...line, tension: parseFloat((Math.random() * 6 + 7).toFixed(1)) };
-        })
-      );
-    }, 2000);
-    return () => clearInterval(simulationInterval);
-  }, []);
+  useEffect(() => {
+    const fetchLines = async () => {
+        try {
+            // 1. 세 종류의 데이터를 모두 한 번에 가져옵니다.
+            const [details, latest, alerts] = await Promise.all([
+                window.api.getAllMooringLines(),
+                window.api.getLatestTensions(),
+                window.api.getAlertCount(), // API 이름이 다를 경우 여기에 맞게 수정해주세요.
+            ]);
+
+            // 2. 'latest'와 'alerts' 데이터를 Map으로 변환하여 준비합니다.
+            const latestMap = new Map<number, { time: string; tension: number }>();
+            if (latest) {
+                for (const row of latest) latestMap.set(row.lineId, row);
+            }
+            const alertMap = new Map<number, { cautionCount: number; warningCount: number }>();
+            if (alerts) {
+                for (const row of alerts) alertMap.set(row.lineId, row);
+            }
+            
+            // 3. 화면에 표시할 순서대로 lineId 배열을 순회하며 객체를 조립합니다.
+            const displayOrder = [8, 7, 6, 5, 4, 3, 2, 1];
+            const mapped: MooringLineData[] = displayOrder.map((lineId, i) => {
+                const posIndex = i + 1;
+                const key = `line_${posIndex}` as keyof typeof bollardPositions;
+                const cleatKey = `cleat${posIndex}` as keyof typeof pierCleatPositions;
+                
+                const d = (details || []).find((x: any) => x.id === lineId) || {};
+                const lt = latestMap.get(lineId);
+                const ac = alertMap.get(lineId);
+
+                // 4. 모든 데이터를 조합하여 하나의 MooringLineData 객체를 생성합니다.
+                const assembledLine = {
+                    id: `Line ${lineId}`, 
+                    tension: lt ? Number(lt.tension) || 0 : 0,
+                    startX: shipX + (bollardPositions as any)[key].x,
+                    startY: shipY + (bollardPositions as any)[key].y,
+                    endX: (pierCleatPositions as any)[cleatKey].x,
+                    endY: (pierCleatPositions as any)[cleatKey].y,
+                    manufacturer: d.manufacturer ?? 'N/A',
+                    model: d.model ?? 'N/A',
+                    usageHours: d.usageTime ?? 0,
+                    lastInspected: d.maintenanceDate,
+                    cautionCount: ac?.cautionCount ?? 0,
+                    warningCount: ac?.warningCount ?? 0,
+                };
+
+                // ✅ [로그 1] 조립된 객체 하나하나를 콘솔에 출력하여 확인합니다.
+                console.log(`[map] lineId: ${lineId} 조립 완료`, assembledLine);
+
+                return assembledLine;
+            });
+
+            // ✅ [로그 2] 최종적으로 완성된 8개 객체의 전체 배열을 콘솔에 출력합니다.
+            console.log("--- 최종 조립된 전체 데이터 (mapped) ---", mapped);
+
+            // 5. 완성된 객체 배열을 state에 저장하여 화면을 업데이트합니다.
+            setLines(mapped);
+
+        } catch (e) {
+            console.error('계류줄 데이터 로드 실패:', e);
+        }
+    };
+
+    // 💡 1. 컴포넌트가 마운트되면 즉시 한 번 호출 (첫 로딩을 위해)
+    fetchLines(); 
+
+    // 💡 2. 5초(5000ms)마다 fetchLines 함수를 반복 호출하는 인터벌 설정
+    const intervalId = setInterval(fetchLines, 5000);
+
+    // 💡 3. 컴포넌트가 언마운트될 때 인터벌을 정리(clean-up)
+    return () => {
+        clearInterval(intervalId);
+    };
+}, []); // 의존성 배열은 비워두어 이 로직이 마운트 시 한 번만 실행되도록 합니다.
+
+  
+
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>

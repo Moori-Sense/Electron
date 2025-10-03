@@ -97,6 +97,30 @@ ipcMain.handle('get-weather-data', async () => {
   }
 });
 
+// --- 모든 계류줄 기본 정보 조회 ---
+ipcMain.handle('get-all-mooring-lines', async () => {
+  try {
+    const stmt = db.prepare(queries.GET_ALL_MOORING_LINES);
+    const rows = stmt.all();
+    return rows;
+  } catch (error) {
+    console.error('모든 계류줄 조회 실패:', error);
+    return [];
+  }
+});
+
+// --- 모든 계류줄의 최신 장력 값 조회 ---
+ipcMain.handle('get-latest-tensions', async () => {
+  try {
+    const stmt = db.prepare(queries.GET_LATEST_TENSIONS_ALL);
+    const rows = stmt.all(); // [{ lineId, time, tension }]
+    return rows;
+  } catch (error) {
+    console.error('최신 장력 조회 실패:', error);
+    return [];
+  }
+});
+
 ipcMain.handle('getMooringLineData', async (_event, lineId: number) => {
   try {
     const detailsStmt = db.prepare(queries.GET_MOORING_LINE_BY_ID);
@@ -132,6 +156,144 @@ ipcMain.handle('get-tension-history', async () => {
     return [];
   }
 });
+
+ipcMain.handle('get-tension-history-by-id', (_event, lineId) => {
+  // lineId가 없거나 문자열이 아니면 빈 배열 반환
+  if (!lineId || typeof lineId !== 'string') {
+    return [];
+  }
+
+  try {
+    // --- ✅ [핵심 수정] ---
+    // "Line 1"과 같은 문자열에서 숫자 부분만 추출하여 정수로 변환합니다.
+    const numericId = parseInt(lineId.replace('Line ', ''), 10);
+
+    // 만약 숫자 변환에 실패하면 (예: "Total Graph" 같은 다른 문자열이 들어올 경우)
+    // NaN(Not a Number)이 되므로, 이를 확인하여 에러를 방지합니다.
+    if (isNaN(numericId)) {
+      console.error("Invalid lineId format received:", lineId);
+      return []; // 유효하지 않은 ID이므로 빈 배열 반환
+    }
+
+    console.log(`[Main] Received '${lineId}', Parsed to '${numericId}'. DB 조회를 시작합니다.`);
+
+    const stmt = db.prepare(queries.GET_TENSION_HISTORY_BY_ID); // 쿼리문
+    
+    // 추출된 숫자 ID로 데이터베이스를 조회합니다.
+    const rows = stmt.all(numericId);
+    
+    return rows;
+
+  } catch (error) {
+    console.error('데이터베이스 쿼리 오류:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('get-dashboard-data', (_event, lineId) => {
+  // lineId가 없거나 문자열이 아니면 빈 배열 반환
+  if (!lineId || typeof lineId !== 'string') {
+    return [];
+  }
+
+  try {
+    // --- ✅ [핵심 수정] ---
+    // "Line 1"과 같은 문자열에서 숫자 부분만 추출하여 정수로 변환합니다.
+    const numericId = parseInt(lineId.replace('Line ', ''), 10);
+
+    // 만약 숫자 변환에 실패하면 (예: "Total Graph" 같은 다른 문자열이 들어올 경우)
+    // NaN(Not a Number)이 되므로, 이를 확인하여 에러를 방지합니다.
+    if (isNaN(numericId)) {
+      console.error("Invalid lineId format received:", lineId);
+      return []; // 유효하지 않은 ID이므로 빈 배열 반환
+    }
+
+    const lineStmt = db.prepare(queries.GET_LINE_INFO_BY_ID);
+    const line_info = lineStmt.all(numericId);
+
+    const weatherStmt = db.prepare(queries.GET_LINE_ALERT_COUNTS);
+    const alert = weatherStmt.all(numericId); // 한 줄만 가져올 경우 .get() 사용
+
+    return {
+      line_info: line_info,
+      alert: alert,
+    };
+
+  } catch (error) {
+    console.error('데이터베이스 쿼리 오류:', error);
+    return [];
+  }
+});
+
+
+//---------------------------------계류줄 경고 정보----------------------------------------//
+
+ipcMain.handle('get-alert-count', () => {
+  try {
+    // 쿼리에서 WHERE 절을 제거하고 GROUP BY를 추가합니다.
+    const stmt = db.prepare(`
+      SELECT
+        lineId,
+        SUM(CASE WHEN alertMessage = 'caution' THEN 1 ELSE 0 END) AS cautionCount,
+        SUM(CASE WHEN alertMessage = 'warning' THEN 1 ELSE 0 END) AS warningCount
+      FROM AlertLogs
+      GROUP BY lineId
+    `);
+    const alerts = stmt.all();
+    console.log('전체 경고/위험 횟수 조회 결과:', alerts);
+    return alerts; // 예: [{lineId: 1, ...}, {lineId: 2, ...}] 배열 반환
+  } catch (error) {
+    console.error('전체 경고/위험 횟수 조회 오류:', error);
+    return [];
+  }
+});
+
+//-----------------------------계류줄 사용시간, 제조사, 모델명, 최종정비일-------------------------------//
+ipcMain.handle('get-line-info', (_event, lineId) => {
+  // lineId가 없거나 문자열이 아니면 빈 배열 반환
+  if (!lineId || typeof lineId !== 'string') {
+    return [];
+  }
+
+  try {
+    // --- ✅ [핵심 수정] ---
+    // "Line 1"과 같은 문자열에서 숫자 부분만 추출하여 정수로 변환합니다.
+    const numericId = parseInt(lineId.replace('Line ', ''), 10);
+
+    // 만약 숫자 변환에 실패하면 (예: "Total Graph" 같은 다른 문자열이 들어올 경우)
+    // NaN(Not a Number)이 되므로, 이를 확인하여 에러를 방지합니다.
+    if (isNaN(numericId)) {
+      console.error("Invalid lineId format received:", lineId);
+      return []; // 유효하지 않은 ID이므로 빈 배열 반환
+    }
+
+    const stmt = db.prepare(queries.GET_LINE_INFO_BY_ID);
+    const rows = stmt.all(numericId);
+
+    return rows;
+
+  } catch (error) {
+    console.error('데이터베이스 쿼리 오류:', error);
+    return [];
+  }
+});
+
+/*ipcMain.handle('getDashboardData', async (_event, lineId: number) => {
+  try {
+    const lineStmt = db.prepare(queries.GET_LINE_INFO_BY_ID);
+    const line_info = lineStmt.all(lineId);
+
+    const weatherStmt = db.prepare(queries.GET_LINE_ALERT_COUNTS);
+    const alert = weatherStmt.all(lineId); // 한 줄만 가져올 경우 .get() 사용
+
+    return { line_info, alert };
+  } catch (error) {
+    console.error('계류줄 데이터 조회 실패:', error);
+    return null;
+  }
+});*/
+
+
 
 // ====================================================================
 // ===== ⬆️ IPC 핸들러 등록 종료 ⬆️ =====

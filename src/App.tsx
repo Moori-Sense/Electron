@@ -6,7 +6,7 @@ import LoadingScreen from './components/LoadingScreen';
 import MainScreenRight from './components/MainScreenRight';
 import MainScreenLeft from './components/MainScreenLeft';
 import MainScreenSetting from './components/SettingScreen';
-import MooringLineInfo from './components/MooringLineInfo';
+//import MooringLineInfo from './components/MooringLineInfo';
 import TensionGraphScreen from './components/TensionGraph';
 
 // --- 타입 정의 임포트 ---
