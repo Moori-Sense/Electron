@@ -10,12 +10,7 @@ import { WeatherDisplay } from './WeatherDisplay'; // 경로 오류 해결을 �
 // import { ViewMode } from './types'; // 경로 오류 해결을 위해 아래 인라인 정의 사용
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
-
-
-// --- WeatherDisplay 컴포넌트 인라인 정의 (경로 오류 해결) ---
-
-// --- ViewMode 타입 인라인 정의 (경로 오류 해결) ---
-type ViewMode = 'main' | 'allTension' | 'settings';
+import {ViewMode} from './types.tsx';
 
 
 // --- 자식 컴포넌트: 계류줄 ---

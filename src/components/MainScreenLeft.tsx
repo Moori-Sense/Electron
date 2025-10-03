@@ -125,7 +125,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
             const [details, latest, alerts] = await Promise.all([
                 window.api.getAllMooringLines(),
                 window.api.getLatestTensions(),
-                window.api.getAlertCount(), // API 이름이 다를 경우 여기에 맞게 수정해주세요.
+                window.api.getAlertCount(), 
             ]);
 
             // 2. 'latest'와 'alerts' 데이터를 Map으로 변환하여 준비합니다.
