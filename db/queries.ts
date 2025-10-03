@@ -167,6 +167,66 @@ export const queries = {
     SELECT lineId, time, tension FROM TensionLogs ORDER BY time DESC LIMIT 1000
   `,
 
+  // 모든 라인의 최신 장력 1건씩을 조회합니다.
+  GET_LATEST_TENSIONS_ALL: `
+    SELECT tl.lineId, tl.time, tl.tension
+    FROM TensionLogs tl
+    JOIN (
+      SELECT lineId, MAX(time) AS maxTime
+      FROM TensionLogs
+      GROUP BY lineId
+    ) latest ON latest.lineId = tl.lineId AND latest.maxTime = tl.time
+    ORDER BY tl.lineId ASC;
+  `,
+
+  PIVOT_GET_TENSION_HISTORY: `
+      SELECT
+        time AS timestamp,
+        MAX(CASE WHEN lineId = 1 THEN tension END) AS line_1,
+        MAX(CASE WHEN lineId = 2 THEN tension END) AS line_2,
+        MAX(CASE WHEN lineId = 3 THEN tension END) AS line_3,
+        MAX(CASE WHEN lineId = 4 THEN tension END) AS line_4,
+        MAX(CASE WHEN lineId = 5 THEN tension END) AS line_5,
+        MAX(CASE WHEN lineId = 6 THEN tension END) AS line_6,
+        MAX(CASE WHEN lineId = 7 THEN tension END) AS line_7,
+        MAX(CASE WHEN lineId = 8 THEN tension END) AS line_8
+      FROM
+        TensionLogs
+      GROUP BY
+        time
+      ORDER BY
+        time DESC
+      LIMIT 1000;
+    `,
+
+  //================================== MooringLineInfo 에서 사용 ==================================//
+    // 특정 계류줄의 장력 이력을 시간 내림차순으로 조회합니다.
+    GET_TENSION_HISTORY_BY_ID: `
+      SELECT tension, time AS timestamp
+      FROM TensionLogs  
+      WHERE lineId = ?
+      ORDER BY time DESC
+      LIMIT 100;
+  `,
+  // 특정 계류줄의 제조사, 모델명, 최종정비, 총 사용 시간 데이터를 조회한다
+  GET_LINE_INFO_BY_ID: `
+    SELECT manufacturer, model, maintenanceDate, usageTime
+    FROM MooringLines
+    WHERE id = ?;
+  `,
+
+  // 특정 계류줄의 caution, warning 횟수를 조회한다.
+  GET_LINE_ALERT_COUNTS: `
+    SELECT
+      SUM(CASE WHEN alertMessage = 'CAUTION' THEN 1 ELSE 0 END) AS cautionCount,
+      SUM(CASE WHEN alertMessage = 'WARNING' THEN 1 ELSE 0 END) AS warningCount
+    FROM AlertLogs
+    WHERE lineId = ?;
+  `,
+
+  //---------------------------------MooringLineInfo 에서 사용------------------------------------//
+
+  
   //---------------------------------mock data 쿼리------------------------------------//
 
   INSERT_MOCK_TENSION_LOG: `
@@ -195,26 +255,6 @@ export const queries = {
       round(80.0 + (abs(random()) % 400) / 10.0, 2),      -- tension: 80.0 ~ 120.0 사이의 무작위 장력
       datetime('now', '-' || n || ' minutes')             -- time: 현재로부터 n분 전
     FROM generate_series;
-  `,
-
-  PIVOT_GET_TENSION_HISTORY: `
-      SELECT
-        time AS timestamp,
-        MAX(CASE WHEN lineId = 1 THEN tension END) AS line_1,
-        MAX(CASE WHEN lineId = 2 THEN tension END) AS line_2,
-        MAX(CASE WHEN lineId = 3 THEN tension END) AS line_3,
-        MAX(CASE WHEN lineId = 4 THEN tension END) AS line_4,
-        MAX(CASE WHEN lineId = 5 THEN tension END) AS line_5,
-        MAX(CASE WHEN lineId = 6 THEN tension END) AS line_6,
-        MAX(CASE WHEN lineId = 7 THEN tension END) AS line_7,
-        MAX(CASE WHEN lineId = 8 THEN tension END) AS line_8
-      FROM
-        TensionLogs
-      GROUP BY
-        time
-      ORDER BY
-        time DESC
-      LIMIT 1000;
-    `
+  `
 
 };

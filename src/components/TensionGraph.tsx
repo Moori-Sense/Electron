@@ -8,13 +8,13 @@ interface HistoryData {
 }
 
 // TypeScript가 window.api 객체를 인식하도록 타입을 선언합니다.
-declare global {
+/*declare global {
   interface Window {
     api: {
       getTensionHistory: () => Promise<HistoryData[]>;
     }
   }
-}
+}*/
 
 interface TensionGraphScreenProps {
   onGoBack: () => void;

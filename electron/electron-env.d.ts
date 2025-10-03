@@ -31,3 +31,17 @@ interface Window {
     getMooringLineData: (lineId: number) => Promise<{ details: any; history: any; }>;
   };
 }
+
+interface Window {
+  api: {
+    getTensionHistory: () => Promise<any>;
+    getAllMooringLines: () => Promise<any[]>;
+    getLatestTensions: () => Promise<Array<{ lineId: number; time: string; tension: number }>>;
+    getTensionHistoryById: (lineId: string) => Promise<any[]>;
+    getDashBoardData: () => Promise<any[]>;
+
+    getLineInfo: (lineId: string) => Promise<{ lastInspected: string; usageHours: number; }>;
+    //getAlertCount: (lineId: string) => Promise<{ cautionCount: number; warningCount: number; }>;
+    getAlertCount: () => Promise<Array<{ lineId: number; cautionCount: number; warningCount: number; }>>;
+  };
+}
