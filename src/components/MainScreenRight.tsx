@@ -11,6 +11,9 @@ import { WeatherDisplay } from './WeatherDisplay'; // 경로 오류 해결을 �
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
 import {ViewMode} from './types.tsx';
+// 계기판 라이브러리 임포트
+import GaugeChart from 'react-gauge-chart'; // 설치한 라이브러리 임포트
+import TensionGauge from './TensionGauge.tsx'
 
 
 // --- 자식 컴포넌트: 계류줄 ---
@@ -213,6 +216,16 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
         border: '1px solid #7f8c8d'
       }}>
         <WeatherDisplay />
+      </div>
+
+    /**자동차 계기판 처럼 장력의 정도를 나타냄 */
+
+     <div style={{
+        position: 'absolute',
+        top: '330px',
+        left: '0px',
+      }}>
+        <TensionGauge />
       </div>
 
       <svg
