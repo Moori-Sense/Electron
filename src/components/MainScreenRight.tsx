@@ -5,7 +5,7 @@ import graph_icon from '../assets/icon_graph.png';
 import setting_icon from '../assets/icon_setting.png';
 import dock from '../assets/dock_good_nu5.png';
 // --- Component Imports (기존 구조 유지) ---
-import { WeatherDisplay } from './WeatherDisplay'; // 경로 오류 해결을 위해 아래 인라인 정의 사용
+import { WeatherDisplay } from './weatherDisplay'; // 경로 오류 해결을 위해 아래 인라인 정의 사용
 // --- ✨ Import ViewMode type from App.tsx (기존 구조 유지) ---
 // import { ViewMode } from './types'; // 경로 오류 해결을 위해 아래 인라인 정의 사용
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
