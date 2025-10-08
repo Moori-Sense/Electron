@@ -8,6 +8,7 @@ import MainScreenLeft from './components/MainScreenLeft';
 import MainScreenSetting from './components/SettingScreen';
 //import MooringLineInfo from './components/MooringLineInfo';
 import TensionGraphScreen from './components/TensionGraph';
+import NotificationSystem from './components/NotificationSystem';
 
 // --- 타입 정의 임포트 ---
 import { ViewMode, LineData } from './components/types';
@@ -94,9 +95,10 @@ function App() {
 
   return (
     <div className={containerClass}>
+      {!isLoading && <NotificationSystem />}
       {isLoading ? <LoadingScreen statusText={statusText} /> : renderContent()}
     </div>
   );
-}
 
+}
 export default App;
