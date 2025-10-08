@@ -41,7 +41,7 @@ interface LineState {
 }
 
 export const GaugeCluster = () => {
-    // 계기판 4개의 데이터를 관리할 state
+    // 계기판 4개의 데이터를 관리할 state (라인 1,2,3,4로 복구)
     const [lines, setLines] = useState<LineState[]>([
         { id: 1, name: 'LINE 1', tension: 0 },
         { id: 2, name: 'LINE 2', tension: 0 },

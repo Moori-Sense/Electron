@@ -32,10 +32,6 @@ const getLineColorByTension = (tension: number): string => {
 const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   const LINE_THICKNESS = 4;
   
-  // Line 5-8의 경우 우측에 텍스트 라벨을 별도로 배치
-  const isRightSideLine = line.id.includes('Line 5') || line.id.includes('Line 6') || 
-                         line.id.includes('Line 7') || line.id.includes('Line 8');
-  
   return (
     <g style={{ cursor: 'pointer' }} onClick={onClick}>
       <line
@@ -44,14 +40,12 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
         stroke={getLineColorByTension(line.tension)}
         strokeWidth={LINE_THICKNESS}
       />
-      {!isRightSideLine && (
-        <text
-          x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
-          fill="white" fontSize="16" textAnchor="middle"
-        >
-          {`${line.id}: ${line.tension.toFixed(1)}t`}
-        </text>
-      )}
+      <text
+        x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
+        fill="white" fontSize="16" textAnchor="middle"
+      >
+        {`${line.id}: ${line.tension.toFixed(1)}t`}
+      </text>
     </g>
   );
 };
@@ -230,7 +224,7 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
 
      <div style={{
         position: 'absolute',
-        top: '420px', // 수정: 라인 계기판을 더 아래로 이동
+        top: '400px', // 수정: 라인 계기판을 아래로 이동
         left: '0px',
       }}>
         <TensionGauge />
@@ -251,31 +245,6 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
           />
         ))}
 
-        {/* 우측 빈 공간에 Line 5-8 텍스트 라벨 배치 */}
-        {lines
-          .filter(line => line.id.includes('Line 5') || line.id.includes('Line 6') || 
-                         line.id.includes('Line 7') || line.id.includes('Line 8'))
-          .map((line, index) => {
-            const baseY = 180; // 시작 Y 위치 조정
-            const spacing = 50; // 라벨 간 간격 조정
-            const y = baseY + (index * spacing);
-            
-            return (
-              <text
-                key={`label-${line.id}`}
-                x={1000} // 우측에 배치 (위치 조정)
-                y={y}
-                fill={getLineColorByTension(line.tension)}
-                fontSize="16"
-                fontWeight="600"
-                textAnchor="start"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedLine(line)}
-              >
-                {`${line.id}: ${line.tension.toFixed(1)}t`}
-              </text>
-            );
-          })}
 
         <IconWithLabel
         href={graph_icon}
