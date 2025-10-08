@@ -4,10 +4,10 @@
 
 /* --- 전체 카드 컨테이너 --- */
 .weather-display {
-  padding: 0.6rem; /* 수정: 패딩 약간 증가 */
+  padding: 0.3rem; /* 수정: 패딩 더 줄임 */
   color: #c9d7e4;
-  width: 320px; /* 수정: 전체 너비 대폭 증가 */
-  min-height: 140px; /* 수정: 최소 높이 증가 */
+  width: 450px; /* 수정: 너비 줄임 */
+  min-height: 80px; /* 수정: 위아래 폭 더 줄임 */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   /* 컨테이너 쿼리 설정 */
@@ -18,9 +18,9 @@
 /* --- 헤더: 제목과 지역 --- */
 .weather-header {
   text-align: center;
-  margin-bottom: 0.7rem; /* 수정: 여백 증가 */
+  margin-bottom: 0.2rem; /* 수정: 여백 더 줄임 */
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding-bottom: 0.5rem; /* 수정: 패딩 증가 */
+  padding-bottom: 0.2rem; /* 수정: 패딩 더 줄임 */
 }
 
 .weather-header h2 {
@@ -36,26 +36,32 @@
 
 /* --- 메인 정보: 아이콘, 날씨 상태, 온도 --- */
 .weather-main {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 수정: 그리드로 변경하여 풍속/풍향과 같은 레이아웃 */
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.8rem; /* 수정: 여백 증가 */
+  margin-bottom: 0.3rem; /* 수정: 여백 더 줄임 */
+  gap: 0.3rem; /* 수정: 그리드 간격 추가 */
 }
 
 .weather-icon-section {
   display: flex;
-  align-items: center;
-  gap: 0.6rem; /* 수정: 간격 증가 */
+  align-items: center; /* 수정: 아이콘과 텍스트 간격 축소 */
 }
 
 .weather-icon {
   width: 45px; /* 수정: 아이콘 크기 증가 */
   height: 45px; /* 수정 */
+  margin-left: 3.0rem; /* 수정: 아이콘을 오른쪽으로 이동 */
 }
 
-.weather-condition,
-.temperature-section {
+.weather-condition {
   text-align: left;
+  padding-left: 1.0rem; /* 수정: 구름을 오른쪽으로 이동 */
+}
+
+.temperature-section {
+  text-align: right;
+  padding-right: 4.7rem; /* 수정: 온도를 왼쪽으로 이동 */
 }
 
 .main-condition {
@@ -81,14 +87,14 @@
 .weather-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem; /* 수정: 그리드 간격 증가 */
-  margin-bottom: 0.7rem; /* 수정: 여백 증가 */
+  gap: 0.3rem; /* 수정: 그리드 간격 더 줄임 */
+  margin-bottom: 0.2rem; /* 수정: 여백 더 줄임 */
 }
 
 .weather-item {
   background: rgba(0, 0, 0, 0.05);
-  padding: 0.5rem; /* 수정: 패딩 증가 */
-  border-radius: 8px; /* 수정: 둥근 모서리 증가 */
+  padding: 0.2rem; /* 수정: 패딩 더 줄임 */
+  border-radius: 4px; /* 수정: 둥근 모서리 더 줄임 */
   text-align: center;
 }
 
@@ -122,7 +128,7 @@
   text-align: right;
   font-size: 0.7rem; /* 수정: 타임스탬프 폰트 크기 증가 */
   opacity: 0.7;
-  padding-top: 0.5rem; /* 수정: 패딩 증가 */
+  padding-top: 0.2rem; /* 수정: 패딩 더 줄임 */
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 

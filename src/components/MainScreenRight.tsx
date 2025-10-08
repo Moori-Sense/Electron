@@ -30,23 +30,30 @@ const getLineColorByTension = (tension: number): string => {
 };
 
 const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
-  const LINE_THICKNESS = 4;
-  return (
-    <g style={{ cursor: 'pointer' }} onClick={onClick}>
-      <line
-        x1={line.startX} y1={line.startY}
-        x2={line.endX} y2={line.endY}
-        stroke={getLineColorByTension(line.tension)}
-        strokeWidth={LINE_THICKNESS}
-      />
-      <text
-        x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
-        fill="white" fontSize="16" textAnchor="middle"
-      >
-        {`${line.id}: ${line.tension.toFixed(1)}t`}
-      </text>
-    </g>
-  );
+  const LINE_THICKNESS = 4;
+  
+  // Line 5-8의 경우 우측에 텍스트 라벨을 별도로 배치
+  const isRightSideLine = line.id.includes('Line 5') || line.id.includes('Line 6') || 
+                         line.id.includes('Line 7') || line.id.includes('Line 8');
+  
+  return (
+    <g style={{ cursor: 'pointer' }} onClick={onClick}>
+      <line
+        x1={line.startX} y1={line.startY}
+        x2={line.endX} y2={line.endY}
+        stroke={getLineColorByTension(line.tension)}
+        strokeWidth={LINE_THICKNESS}
+      />
+      {!isRightSideLine && (
+        <text
+          x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
+          fill="white" fontSize="16" textAnchor="middle"
+        >
+          {`${line.id}: ${line.tension.toFixed(1)}t`}
+        </text>
+      )}
+    </g>
+  );
 };
 
 // --- 자식 컴포넌트: IconWithLabel ---
@@ -204,29 +211,30 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <div style={{
-        position: 'absolute',
-        top: '50px',
-        left: '175px', // 위치를 왼쪽으로 변경
-        zIndex: 10,
-        color: 'white',
-        backgroundColor: 'rgba(44, 62, 80, 0.8)',
-        padding: '20px',
-        borderRadius: '10px',
-        border: '1px solid #7f8c8d'
-      }}>
-        <WeatherDisplay />
-      </div>
+      <div style={{
+        position: 'absolute',
+        top: '90px', // 수정: 날씨 정보를 더 아래로 이동
+        left: '50px', // 수정: 날씨 정보를 오른쪽으로 이동
+        zIndex: 10,
+        color: 'white',
+        backgroundColor: 'rgba(44, 62, 80, 0.85)',
+        padding: '15px',
+        borderRadius: '12px',
+        border: '1px solid #7f8c8d',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+      }}>
+        <WeatherDisplay />
+      </div>
 
     /**자동차 계기판 처럼 장력의 정도를 나타냄 */
 
      <div style={{
-        position: 'absolute',
-        top: '330px',
-        left: '0px',
-      }}>
-        <TensionGauge />
-      </div>
+        position: 'absolute',
+        top: '420px', // 수정: 라인 계기판을 더 아래로 이동
+        left: '0px',
+      }}>
+        <TensionGauge />
+      </div>
 
       <svg
         viewBox="0 0 1200 800"
@@ -235,24 +243,50 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
         <image href={dock} x={dockX} y={dockY} width={DOCK_WIDTH} height={DOCK_HEIGHT} />
         <image href={ship} x={shipX} y={shipY} width={SHIP_WIDTH} height={SHIP_HEIGHT} />
         
-        {lines.map((line) => (
-          <MooringLine
-            key={line.id}
-            line={line}
-            onClick={() => setSelectedLine(line)}
-          />
-        ))}
+        {lines.map((line) => (
+          <MooringLine
+            key={line.id}
+            line={line}
+            onClick={() => setSelectedLine(line)}
+          />
+        ))}
 
-        <IconWithLabel
-        href={graph_icon}
-        {...iconPositions.graph}
-        onClick={() => onNavigate('allTension')} // 'allTension' 화면으로 이동
-      />
-        <IconWithLabel
-          href={setting_icon}
-          {...iconPositions.setting}
-          onClick={() => onNavigate('settings')}
-        />
+        {/* 우측 빈 공간에 Line 5-8 텍스트 라벨 배치 */}
+        {lines
+          .filter(line => line.id.includes('Line 5') || line.id.includes('Line 6') || 
+                         line.id.includes('Line 7') || line.id.includes('Line 8'))
+          .map((line, index) => {
+            const baseY = 180; // 시작 Y 위치 조정
+            const spacing = 50; // 라벨 간 간격 조정
+            const y = baseY + (index * spacing);
+            
+            return (
+              <text
+                key={`label-${line.id}`}
+                x={1000} // 우측에 배치 (위치 조정)
+                y={y}
+                fill={getLineColorByTension(line.tension)}
+                fontSize="16"
+                fontWeight="600"
+                textAnchor="start"
+                style={{ cursor: 'pointer' }}
+                onClick={() => setSelectedLine(line)}
+              >
+                {`${line.id}: ${line.tension.toFixed(1)}t`}
+              </text>
+            );
+          })}
+
+        <IconWithLabel
+        href={graph_icon}
+        {...iconPositions.graph}
+        onClick={() => onNavigate('allTension')} // 'allTension' 화면으로 이동
+      />
+        <IconWithLabel
+          href={setting_icon}
+          {...iconPositions.setting}
+          onClick={() => onNavigate('settings')}
+        />
       </svg>
       
       {selectedLine && (
