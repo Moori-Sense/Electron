@@ -4,10 +4,10 @@
 
 /* --- 전체 카드 컨테이너 --- */
 .weather-display {
-  padding: 0.5rem; /* 수정: 내부 여백 더 축소 */
+  padding: 0.6rem; /* 수정: 패딩 약간 증가 */
   color: #c9d7e4;
-  width: 180px; /* 수정: 전체 너비 더 축소 */
-  min-height: 120px; /* 수정: 최소 높이 축소 */
+  width: 320px; /* 수정: 전체 너비 대폭 증가 */
+  min-height: 140px; /* 수정: 최소 높이 증가 */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   /* 컨테이너 쿼리 설정 */
@@ -18,19 +18,19 @@
 /* --- 헤더: 제목과 지역 --- */
 .weather-header {
   text-align: center;
-  margin-bottom: 0.5rem; /* 수정: 여백 더 축소 */
+  margin-bottom: 0.7rem; /* 수정: 여백 증가 */
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding-bottom: 0.3rem; /* 수정: 패딩 축소 */
+  padding-bottom: 0.5rem; /* 수정: 패딩 증가 */
 }
 
 .weather-header h2 {
-  margin: 0 0 0.1rem 0; /* 수정: 여백 축소 */
-  font-size: 0.85rem; /* 수정: 제목 크기 축소 */
+  margin: 0 0 0.2rem 0; /* 수정: 여백 증가 */
+  font-size: 1rem; /* 수정: 제목 크기 증가 */
   font-weight: 600;
 }
 
 .location {
-  font-size: 0.65rem; /* 수정: 위치 폰트 크기 축소 */
+  font-size: 0.75rem; /* 수정: 위치 폰트 크기 증가 */
   opacity: 0.8;
 }
 
@@ -39,18 +39,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem; /* 수정: 여백 더 축소 */
+  margin-bottom: 0.8rem; /* 수정: 여백 증가 */
 }
 
 .weather-icon-section {
   display: flex;
   align-items: center;
-  gap: 0.3rem; /* 수정: 간격 축소 */
+  gap: 0.6rem; /* 수정: 간격 증가 */
 }
 
 .weather-icon {
-  width: 32px; /* 수정: 아이콘 크기 더 축소 */
-  height: 32px; /* 수정 */
+  width: 45px; /* 수정: 아이콘 크기 증가 */
+  height: 45px; /* 수정 */
 }
 
 .weather-condition,
@@ -59,20 +59,20 @@
 }
 
 .main-condition {
-  font-size: 0.75rem; /* 수정: 날씨 상태 폰트 크기 축소 */
+  font-size: 0.9rem; /* 수정: 날씨 상태 폰트 크기 증가 */
   font-weight: 600;
-  margin-bottom: 0.1rem; /* 수정: 여백 축소 */
+  margin-bottom: 0.2rem; /* 수정: 여백 증가 */
   text-transform: capitalize;
 }
 
 .description {
-  font-size: 0.6rem; /* 수정: 설명 폰트 크기 축소 */
+  font-size: 0.75rem; /* 수정: 설명 폰트 크기 증가 */
   opacity: 0.8;
   text-transform: capitalize;
 }
 
 .main-temp {
-  font-size: 1.4rem; /* 수정: 온도 폰트 크기 더 축소 */
+  font-size: 1.8rem; /* 수정: 온도 폰트 크기 증가 */
   font-weight: 700;
   line-height: 1;
 }
@@ -81,14 +81,14 @@
 .weather-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem; /* 수정: 그리드 간격 축소 */
-  margin-bottom: 0.5rem; /* 수정: 여백 더 축소 */
+  gap: 0.5rem; /* 수정: 그리드 간격 증가 */
+  margin-bottom: 0.7rem; /* 수정: 여백 증가 */
 }
 
 .weather-item {
   background: rgba(0, 0, 0, 0.05);
-  padding: 0.3rem; /* 수정: 패딩 축소 */
-  border-radius: 6px; /* 수정: 둥근 모서리 축소 */
+  padding: 0.5rem; /* 수정: 패딩 증가 */
+  border-radius: 8px; /* 수정: 둥근 모서리 증가 */
   text-align: center;
 }
 
@@ -99,30 +99,30 @@
 
 .label {
   display: block;
-  font-size: 0.55rem; /* 수정: 라벨 폰트 크기 축소 */
+  font-size: 0.7rem; /* 수정: 라벨 폰트 크기 증가 */
   opacity: 0.8;
-  margin-bottom: 0.1rem; /* 수정: 여백 축소 */
+  margin-bottom: 0.2rem; /* 수정: 여백 증가 */
   text-transform: uppercase;
 }
 
 .value {
   display: block;
-  font-size: 0.7rem; /* 수정: 값 폰트 크기 축소 */
+  font-size: 0.85rem; /* 수정: 값 폰트 크기 증가 */
   font-weight: 600;
 }
 
 .wave-time {
-  font-size: 0.5rem; /* 수정: 파고 시간 폰트 크기 축소 */
+  font-size: 0.65rem; /* 수정: 파고 시간 폰트 크기 증가 */
   opacity: 0.7;
-  margin-top: 0.1rem; /* 수정: 여백 축소 */
+  margin-top: 0.2rem; /* 수정: 여백 증가 */
 }
 
 /* --- 마지막 업데이트 시간 --- */
 .timestamp {
   text-align: right;
-  font-size: 0.55rem; /* 수정: 타임스탬프 폰트 크기 축소 */
+  font-size: 0.7rem; /* 수정: 타임스탬프 폰트 크기 증가 */
   opacity: 0.7;
-  padding-top: 0.3rem; /* 수정: 패딩 축소 */
+  padding-top: 0.5rem; /* 수정: 패딩 증가 */
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -142,29 +142,29 @@
 /* ===================================================== */
 /* ✨ 컨테이너 쿼리: 반응형 크기 조정 ✨                  */
 /* ===================================================== */
-@container weather-card (max-width: 150px) {
+@container weather-card (max-width: 250px) {
   .weather-display {
-    padding: 0.4rem;
+    padding: 0.5rem;
   }
 
   .weather-header h2 {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
   }
 
   .main-temp {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
   }
 
   .weather-icon {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
   }
   
   .value {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
 
   .label {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
   }
 }

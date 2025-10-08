@@ -6,6 +6,7 @@ import "./NotificationSystem.css";
 const NotificationSystem: React.FC = () => {
 
     const [currentAlert, setCurrentAlert] = useState<Notification | null>(null);
+    const [topNotifications, setTopNotifications] = useState<Notification[]>([]);
 
     const [thresholds] = useState<AlertThresholds>({
         caution: 100,
@@ -42,8 +43,8 @@ const NotificationSystem: React.FC = () => {
                 }
             }
 
-            // 임계값을 초과한 라인이 있고, 현재 알림이 없을 때만 알림 생성
-            if(alertLine && alertType && !currentAlert){
+            // 임계값을 초과한 라인이 있을 때 알림 생성
+            if(alertLine && alertType){
                 const newNotification: Notification = {
                     id: `${alertLine.lineId}-${Date.now()}`,
                     lineId: alertLine.lineId,
@@ -55,13 +56,19 @@ const NotificationSystem: React.FC = () => {
                     isActive: true,
                 };
 
-                // 현재 알림으로 설정하고 5초 후 자동 제거
-                setCurrentAlert(newNotification);
-                
-                // 5초 후 알림 제거
-                setTimeout(() => {
-                    setCurrentAlert(null);
-                }, 5000);
+                // 중앙 팝업이 없을 때만 중앙 팝업 표시
+                if(!currentAlert){
+                    setCurrentAlert(newNotification);
+                    
+                    // 5초 후 중앙 팝업 제거하고 상단 알림으로 이동
+                    setTimeout(() => {
+                        setCurrentAlert(null);
+                        setTopNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // 최대 5개 유지
+                    }, 5000);
+                } else {
+                    // 이미 중앙 팝업이 있으면 바로 상단 알림으로 추가
+                    setTopNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
+                }
             }
         };
 
@@ -74,9 +81,40 @@ const NotificationSystem: React.FC = () => {
         return () => clearInterval(interval);
     }, [thresholds]);
 
+    // 상단 알림 제거 함수
+    const removeTopNotification = (notificationId: string) => {
+        setTopNotifications(prev => prev.filter(notif => notif.id !== notificationId));
+    };
+
 
     return (
         <>
+            {/* 상단 알림들 */}
+            {topNotifications.length > 0 && (
+                <div className="top-notifications">
+                    {topNotifications.map(notification => (
+                        <div 
+                            key={notification.id} 
+                            className={`top-notification ${notification.type}`}
+                        >
+                            <div className="notification-icon">
+                                {notification.type === 'danger' ? '🚨' : '⚠️'}
+                            </div>
+                            <div className="notification-content">
+                                <div className="notification-title">{notification.title}</div>
+                                <div className="notification-message">{notification.message}</div>
+                            </div>
+                            <button 
+                                className="close-button"
+                                onClick={() => removeTopNotification(notification.id)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* 중앙 알림 팝업 */}
             {currentAlert && (
                 <div className="alert-popup">
