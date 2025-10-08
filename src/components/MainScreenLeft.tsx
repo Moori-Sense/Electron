@@ -11,7 +11,7 @@ import { ViewMode } from './types';
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
 
-import TensionGauge from './TensionGauge';
+import TensionGaugeLeft from './TensionGaugeLeft';
 
 
 // --- 자식 컴포넌트: 계류줄 ---
@@ -219,7 +219,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
         position: 'absolute',
         top: '400px', // 수정: 라인 계기판을 더 아래로 이동
         right: '500px'}}>
-        <TensionGauge />
+        <TensionGaugeLeft />
               </div>
       <svg
         viewBox="0 0 1200 800"
