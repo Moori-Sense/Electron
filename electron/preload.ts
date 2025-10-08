@@ -1,5 +1,12 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
+
+export type TensionLog = {
+  lineId: number;
+  time: string;
+  tension: number;
+};
+
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
@@ -42,7 +49,8 @@ contextBridge.exposeInMainWorld('api', {
   getLineInfo: (lineId: string) => ipcRenderer.invoke('get-line-info', lineId),
   // 경고/위험 알림 개수 가져옴
   getAlertCount: () => ipcRenderer.invoke('get-alert-count'),
-
+  onNewTensionData: (callback: (logs: TensionLog[]) => void) => 
+    ipcRenderer.on('new-tension-data', (_event, logs) => callback(logs))
 
 });
 

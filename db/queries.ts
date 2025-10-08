@@ -255,6 +255,16 @@ export const queries = {
       round(80.0 + (abs(random()) % 400) / 10.0, 2),      -- tension: 80.0 ~ 120.0 사이의 무작위 장력
       datetime('now', '-' || n || ' minutes')             -- time: 현재로부터 n분 전
     FROM generate_series;
-  `
+  `,
+
+  INSERT_WINCH_LOG: `
+    INSERT INTO TensionLogs (id, lineId, time, tension) VALUES (?, ?, ?, ?);
+  `,
+  INSERT_VESSEL_STATUS_LOG: `
+    INSERT INTO DistanceLogs (id, time, bowDistance, sternDistance) VALUES (?, ?, ?, ?);
+  `,
+  INSERT_ALERT_LOG: `
+    INSERT INTO AlertLogs (id, lineId, time, alertMessage) VALUES (?, ?, ?, ?);
+  `,
 
 };
