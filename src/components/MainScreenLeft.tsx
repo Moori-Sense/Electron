@@ -11,6 +11,8 @@ import { ViewMode } from './types';
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
 
+import TensionGauge from './TensionGauge';
+
 
 // --- 자식 컴포넌트: 계류줄 ---
 interface MooringLineProps {
@@ -202,8 +204,8 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
       
       <div style={{
         position: 'absolute',
-        top: '50px',
-        right: '175px',
+        top: '90px',
+        right: '50px',
         zIndex: 10,
         color: 'white',
         backgroundColor: 'rgba(44, 62, 80, 0.8)',
@@ -213,7 +215,12 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
       }}>
         <WeatherDisplay />
       </div>
-
+      <div style={{
+        position: 'absolute',
+        top: '400px', // 수정: 라인 계기판을 더 아래로 이동
+        right: '500px'}}>
+        <TensionGauge />
+              </div>
       <svg
         viewBox="0 0 1200 800"
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
