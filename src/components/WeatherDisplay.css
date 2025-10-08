@@ -1,170 +1,80 @@
 /* ================================================= */
-/* 날씨 표시 컴포넌트 스타일 (WeatherDisplay.css)      */
+/* 날씨 표시 컴포넌트 스타일 (가로형 Flexbox 구조)   */
 /* ================================================= */
 
-/* --- 전체 카드 컨테이너 --- */
-.weather-display {
-  padding: 0.7rem; /* 수정: 내부 여백 추가 축소 */
-  color: #c9d7e4;
-  width: 220px; /* 수정: 전체 너비 추가 축소 */
-  min-height: 140px;
+/* --- 전체 컨테이너 --- */
+.weather-display-horizontal {
+  display: flex; /* 자식 요소들을 가로로 배치 */
+  justify-content: space-around; /* 공간을 균등하게 배분 */
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  color: #e0e6ec;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-
-  /* 컨테이너 쿼리 설정 */
-  container-type: inline-size;
-  container-name: weather-card;
+  border-radius: 12px;
+  background-color: rgba(28, 42, 58, 0.85);
+  border: 1px solid rgba(127, 140, 141, 0.3);
+  box-sizing: border-box;
 }
 
-/* --- 헤더: 제목과 지역 --- */
-.weather-header {
+/* --- 각 날씨 정보 아이템 (기온, 풍속 등) --- */
+.weather-item {
+  display: flex;
+  flex-direction: column; /* 라벨과 값을 세로로 배치 */
+  align-items: center;
+  gap: 0.4rem;
   text-align: center;
-  margin-bottom: 0.7rem; /* 수정 */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding-bottom: 0.5rem; /* 수정 */
+  padding: 0 1.2rem;
+  min-width: 80px;
 }
 
-.weather-header h2 {
-  margin: 0 0 0.2rem 0;
-  font-size: 1rem;
-  font-weight: 600;
+/* 첫 번째 아이템을 제외하고 왼쪽에 구분선 추가 */
+.weather-item:not(:first-child) {
+  border-left: 1px solid rgba(127, 140, 141, 0.2);
 }
 
-.location {
-  font-size: 0.75rem;
-  opacity: 0.8;
+/* --- 기온을 표시하는 메인 아이템 --- */
+.temp-item {
+  flex-direction: row; /* 아이콘과 텍스트를 가로로 배치 */
+  gap: 1rem;
+  border-left: none; /* 첫 아이템이므로 구분선 제거 */
 }
 
-/* --- 메인 정보: 아이콘, 날씨 상태, 온도 --- */
-.weather-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.7rem; /* 수정 */
-}
-
-.weather-icon-section {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.weather-icon {
-  width: 38px; /* 수정: 아이콘 크기 축소 */
-  height: 38px; /* 수정 */
-}
-
-.weather-condition,
-.temperature-section {
-  text-align: left;
-}
-
-.main-condition {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.2rem;
-  text-transform: capitalize;
-}
-
-.description {
-  font-size: 0.7rem;
-  opacity: 0.8;
-  text-transform: capitalize;
-}
-
-.main-temp {
-  font-size: 1.7rem; /* 수정: 온도 폰트 크기 축소 */
-  font-weight: 700;
+.temp-item .value {
+  font-size: 1.5rem;
+  font-weight: 500;
   line-height: 1;
 }
 
-/* --- 세부 정보 그리드 --- */
-.weather-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-  margin-bottom: 0.7rem; /* 수정 */
+.temp-item .label { /* 기온 옆 '구름' 텍스트 */
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+  text-transform: none;
 }
 
-.weather-item {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 0.5rem; /* 수정 */
-  border-radius: 8px;
-  text-align: center;
-}
-
-.weather-item.wave-height {
-  grid-column: span 2;
-  background: rgba(0, 0, 0, 0.07);
+/* --- 아이콘, 라벨, 값 공통 스타일 --- */
+.weather-icon {
+  width: 35px;
+  height: 35px;
 }
 
 .label {
-  display: block;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   opacity: 0.8;
-  margin-bottom: 0.2rem;
+  font-weight: 500;
   text-transform: uppercase;
 }
 
 .value {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
-.wave-time {
-  font-size: 0.6rem;
-  opacity: 0.7;
-  margin-top: 0.2rem;
-}
-
-/* --- 마지막 업데이트 시간 --- */
-.timestamp {
-  text-align: right;
-  font-size: 0.65rem;
-  opacity: 0.7;
-  padding-top: 0.5rem; /* 수정 */
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* --- 로딩, 에러, 데이터 없음 상태 --- */
-.loading, .error, .no-data {
-  text-align: center;
-  padding: 2rem;
-  font-size: 0.9rem;
-  color: #213547;
-}
-
-.error {
-  color: #d32f2f;
-}
-
-
-/* ===================================================== */
-/* ✨ 컨테이너 쿼리: 반응형 크기 조정 ✨                  */
-/* ===================================================== */
-@container weather-card (max-width: 180px) {
-  .weather-display {
-    padding: 0.6rem;
-  }
-
-  .weather-header h2 {
-    font-size: 0.9rem;
-  }
-
-  .main-temp {
-    font-size: 1.6rem;
-  }
-
-  .weather-icon {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .value {
-    font-size: 0.75rem;
-  }
-
-  .label {
-    font-size: 0.6rem;
-  }
+.unit {
+  font-size: 1rem;
+  opacity: 0.8;
+  font-weight: normal;
+  margin-left: 0.2rem;
 }

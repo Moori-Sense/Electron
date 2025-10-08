@@ -24,7 +24,7 @@ const TensionGauge = ({ name, tension, maxTension = 200 }: TensionGaugeProps) =>
                 textColor="#ffffff"
                 formatTextValue={(_value: string) => `${tension.toFixed(1)}t`}
                 animate={false}
-                style={{ fontSize: '5px' }}
+                style={{ fontSize: '8px' }}
             />
             <h3 style={{ marginTop: '-5px', color: 'white', fontWeight: 'normal' }}>{name}</h3>
         </div>
@@ -40,13 +40,13 @@ interface LineState {
     tension: number;
 }
 
-export const GaugeCluster = () => {
+export const GaugeClusterLeft = () => {
     // 계기판 4개의 데이터를 관리할 state
     const [lines, setLines] = useState<LineState[]>([
-        { id: 1, name: 'LINE 1', tension: 0 },
-        { id: 2, name: 'LINE 2', tension: 0 },
-        { id: 3, name: 'LINE 3', tension: 0 },
-        { id: 4, name: 'LINE 4', tension: 0 },
+        { id: 5, name: 'LINE 5', tension: 0 },
+        { id: 6, name: 'LINE 6', tension: 0 },
+        { id: 7, name: 'LINE 7', tension: 0 },
+        { id: 8, name: 'LINE 8', tension: 0 },
     ]);
 
     // 5초마다 최신 장력 데이터를 가져와 state를 업데이트
@@ -100,4 +100,4 @@ export const GaugeCluster = () => {
 };
 
 // 이 파일의 '대표 상품'은 GaugeCluster 이므로 이것만 default로 export 합니다.
-export default GaugeCluster;
+export default GaugeClusterLeft;

@@ -211,8 +211,8 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
         zIndex: 10,
         color: 'white',
         backgroundColor: 'rgba(44, 62, 80, 0.8)',
-        padding: '20px',
-        borderRadius: '10px',
+        padding: '5px',
+        borderRadius: '5px',
         border: '1px solid #7f8c8d'
       }}>
         <WeatherDisplay />

@@ -10,7 +10,7 @@ import { WeatherDisplay } from './WeatherDisplay';
 import { ViewMode } from './types';
 // --- ✨ MooringLineInfo.tsx로부터 필요한 LineInfoModal과 MooringLineData를 임포트합니다 ---
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
-
+import { GaugeClusterLeft } from './TensionGaugeLeft';
 
 // --- 자식 컴포넌트: 계류줄 ---
 interface MooringLineProps {
@@ -212,6 +212,14 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
         border: '1px solid #7f8c8d'
       }}>
         <WeatherDisplay />
+      </div>
+
+      <div style={{
+        position: 'absolute',
+        top: '330px',
+        left: '6700px',
+      }}>
+        <GaugeClusterLeft />
       </div>
 
       <svg
