@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true, // 👈 이 한 줄을 추가하여 번역기를 켭니다!
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    //"noEmit": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["electron", "src/**/*.ts","db/**/*.ts"]
 }
