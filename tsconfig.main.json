@@ -1,0 +1,30 @@
+// tsconfig.main.json 파일 (새로 생성)
+{
+  // 기존 tsconfig.json 파일의 기본 설정을 가져옵니다.
+  "extends": "./tsconfig.json", 
+  
+  "compilerOptions": {
+    // 💡 컴파일 결과(JS 및 D.TS)를 저장할 폴더입니다.
+    // package.json의 "main" 경로와 일치하도록 설정합니다.
+    "outDir": "dist-electron", 
+    
+    // 💡 실제 파일 출력을 허용합니다. (noEmit: true를 덮어씀)
+    "noEmit": false, 
+    
+    // 💡 타입 정의 파일(.d.ts) 생성을 명시적으로 요청합니다.
+    "declaration": true, 
+    
+    // 💡 Electron 메인 프로세스는 Node.js 환경이므로 CommonJS 모듈 시스템을 사용합니다.
+    "module": "CommonJS", 
+    
+    // 💡 Node 환경에서는 DOM 라이브러리 제거
+    "lib": ["ES2020"],
+    
+    // 💡 메인 프로세스 컴파일 시 충돌 방지를 위해 타입 검사 전용 옵션은 비활성화
+    "isolatedModules": false, 
+    "allowImportingTsExtensions": false
+  },
+  
+  // 💡 컴파일할 대상은 'electron' 폴더만 지정합니다. (src 폴더 제외)
+  "include": ["electron"]
+}

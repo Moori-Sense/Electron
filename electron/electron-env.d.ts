@@ -43,5 +43,10 @@ interface Window {
     getLineInfo: (lineId: string) => Promise<{ lastInspected: string; usageHours: number; }>;
     //getAlertCount: (lineId: string) => Promise<{ cautionCount: number; warningCount: number; }>;
     getAlertCount: () => Promise<Array<{ lineId: number; cautionCount: number; warningCount: number; }>>;
+    getAlerts: (lineId: string) => Promise<any[]>;
+    getAllAlerts: () => Promise<any[]>;
+    acknowledgeAlert: (alertId: number) => Promise<void>;
+    getMooringLineData: (lineId: number) => Promise<{ details: any; history: any; }>;
+    
   };
 }

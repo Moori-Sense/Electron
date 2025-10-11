@@ -92,10 +92,10 @@
 /* 메인 화면을 위한 새로운 배경 스타일 */
 .main-background {
   /* 예시: 단색 배경 */
-  background-color: #f0f2f5; 
+  background-color: #08172e;  
   /* 예시: 다른 이미지 배경 */
-  background-image: url('./assets/wallpaper2.png');
+  /*background-image: url('./assets/wallpaper2.png');
   background-size: cover;
-  background-position: center;
+  background-position: center;*/
 }
 
