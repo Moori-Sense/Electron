@@ -220,8 +220,6 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
         <WeatherDisplay />
       </div>
 
-    /**자동차 계기판 처럼 장력의 정도를 나타냄 */
-
      <div style={{
         position: 'absolute',
         top: '400px', // 수정: 라인 계기판을 아래로 이동

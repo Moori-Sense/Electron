@@ -5,6 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "commonJs",
     "skipLibCheck": true,
+    "outDir": "dist-ts", 
 
     /* Bundler mode */
     "moduleResolution": "node",
@@ -20,6 +21,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "electron"],
+  "include": ["src"],
+  "exclude": [
+    "node_modules", // 일반적으로 포함
+    "**/*.d.ts"     // 👈 이 부분을 추가하여 모든 타입 정의 파일 제외
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

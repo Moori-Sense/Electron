@@ -49,12 +49,11 @@ contextBridge.exposeInMainWorld('api', {
   getLineInfo: (lineId: string) => ipcRenderer.invoke('get-line-info', lineId),
   // 경고/위험 알림 개수 가져옴
   getAlertCount: () => ipcRenderer.invoke('get-alert-count'),
-<<<<<<< HEAD
-  getMooringLineData: (lineId: number) => ipcRenderer.invoke('getMooringLineData', lineId)
-=======
-  onNewTensionData: (callback: (logs: TensionLog[]) => void) => 
-    ipcRenderer.on('new-tension-data', (_event, logs) => callback(logs))
->>>>>>> e19e7d91451dfbf9adb312043808801ac671d4ca
+  getMooringLineData: (lineId: number) => ipcRenderer.invoke('getMooringLineData', lineId),
+  sendDistanceToArduino: (distance: number) => {
+        // 이 부분이 main.js의 ipcMain.handle을 호출합니다.
+        return ipcRenderer.invoke('send-distance-to-arduino', distance);
+    }
 
 });
 

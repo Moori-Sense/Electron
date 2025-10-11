@@ -40,7 +40,7 @@ export const queries = {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         time DATETIME DEFAULT CURRENT_TIMESTAMP,
         sternDistance REAL NOT NULL,
-        bowDistance REAL NOT NULL,
+        bowDistance REAL NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS LengthLogs (
@@ -271,28 +271,17 @@ export const queries = {
     FROM generate_series;
   `,
 
-<<<<<<< HEAD
   INSERT_TENSION_LOG: `
-    INSERT INTO TensionLogs (id, lineId, time, tension) VALUES (?, ?, ?, ?);
+    INSERT INTO TensionLogs (lineId, time, tension) VALUES (?, ?, ?);
   `,
   INSERT_VESSEL_STATUS_LOG: `
-    INSERT INTO DistanceLogs (id, time, sternDistance, bowDistance) VALUES (?, ?, ?, ?);
-=======
-  INSERT_WINCH_LOG: `
-    INSERT INTO TensionLogs (id, lineId, time, tension) VALUES (?, ?, ?, ?);
-  `,
-  INSERT_VESSEL_STATUS_LOG: `
-    INSERT INTO DistanceLogs (id, time, bowDistance, sternDistance) VALUES (?, ?, ?, ?);
->>>>>>> e19e7d91451dfbf9adb312043808801ac671d4ca
+    INSERT INTO DistanceLogs (time, sternDistance, bowDistance) VALUES (?, ?, ?);
   `,
   INSERT_ALERT_LOG: `
-    INSERT INTO AlertLogs (id, lineId, time, alertMessage) VALUES (?, ?, ?, ?);
+    INSERT INTO AlertLogs (lineId, time, alertMessage) VALUES (?, ?, ?);
   `,
-<<<<<<< HEAD
   INSERT_LENGTH_LOG: `
-    INSERT INTO LengthLogs (id, time, lineId, length) VALUES (?, ?, ?, ?);
+    INSERT INTO LengthLogs (time, lineId, length) VALUES (?, ?, ?);
   `,
-=======
->>>>>>> e19e7d91451dfbf9adb312043808801ac671d4ca
 
 };
