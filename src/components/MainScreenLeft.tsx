@@ -28,23 +28,82 @@ const getLineColorByTension = (tension: number): string => {
 };
 
 const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
-  const LINE_THICKNESS = 4;
-  return (
-    <g style={{ cursor: 'pointer' }} onClick={onClick}>
-      <line
-        x1={line.startX} y1={line.startY}
-        x2={line.endX} y2={line.endY}
-        stroke={getLineColorByTension(line.tension)}
-        strokeWidth={LINE_THICKNESS}
-      />
-      <text
-        x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
-        fill="white" fontSize="16" textAnchor="middle"
-      >
-        {`${line.id}: ${line.tension.toFixed(1)}t`}
-      </text>
-    </g>
-  );
+  // --- ✨ 버튼 크기 및 스타일 설정 ✨ ---
+  const LINE_THICKNESS = 4;
+  const FONT_SIZE = 16;
+  const RECT_WIDTH = 120;
+  const RECT_HEIGHT = 28;
+  const DEFAULT_Y_OFFSET = -15; // 텍스트만 있을 때의 기본 오프셋 (기존 값 유지)
+  
+  const TEXT_CONTENT = `${line.id}: ${line.tension.toFixed(1)}t`;
+  const tensionColor = getLineColorByTension(line.tension);
+
+  // --- ✨ 호버 상태 관리 추가 ✨ ---
+  const [isHovered, setIsHovered] = useState(false);
+
+  // 라인 중앙 좌표 계산
+  const midX = (line.startX + line.endX) / 2;
+  const midY = (line.startY + line.endY) / 2;
+  
+  // 최종 라벨 Y 위치 계산 (호버 상태와 무관하게 동일 위치 유지)
+  // 버튼이 나타나도 텍스트가 제자리에 고정되도록 합니다.
+  const finalLabelY = midY + DEFAULT_Y_OFFSET;
+
+  // 라벨 배경 사각형 위치 (텍스트 중앙에 오도록)
+  const rectX = midX - RECT_WIDTH / 2;
+  const rectY = finalLabelY - RECT_HEIGHT / 2;
+
+  return (
+    <g 
+      style={{ cursor: 'pointer' }} 
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)} // 마우스 진입 시 호버 상태 true
+      onMouseLeave={() => setIsHovered(false)} // 마우스 이탈 시 호버 상태 false
+    >
+      {/* 1. 계류줄 (Line) */}
+      <line
+        x1={line.startX} y1={line.startY}
+        x2={line.endX} y2={line.endY}
+        stroke={tensionColor}
+        strokeWidth={LINE_THICKNESS}
+      />
+
+      {/* 2. 장력 라벨 (호버 시 버튼처럼 보이게) */}
+      <g 
+          style={{ 
+              // 호버 시에만 그림자 적용 (시인성 향상)
+              filter: isHovered ? 'drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5))' : 'none',
+          }}
+      >
+        {/* 배경 사각형 (버튼 형태) - 호버 상태일 때만 렌더링 */}
+        {isHovered && (
+          <rect
+            x={rectX} y={rectY}
+            width={RECT_WIDTH} height={RECT_HEIGHT}
+            rx="5" ry="5"
+            fill={tensionColor} // 라인 색상과 동일한 배경색
+            stroke="#fff"
+            strokeWidth="1"
+          />
+        )}
+        
+        {/* 텍스트 */}
+        <text
+          x={midX} 
+          y={finalLabelY} 
+          // 👇 호버 시: 검은색, 평소: 흰색
+          fill={isHovered ? "black" : "white"} 
+          fontSize={FONT_SIZE} 
+          textAnchor="middle" 
+          dominantBaseline="middle" 
+          // 👇 호버 시: 두껍게, 평소: 보통 두께
+          fontWeight={isHovered ? "bold" : "normal"}
+        >
+          {TEXT_CONTENT}
+        </text>
+      </g>
+    </g>
+  );
 };
 
 // --- 자식 컴포넌트: 아이콘과 레이블 ---
