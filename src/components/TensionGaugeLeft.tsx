@@ -9,7 +9,7 @@ interface TensionGaugeProps {
     maxTension?: number;
 }
 
-const TensionGauge = ({ name, tension, maxTension = 50 }: TensionGaugeProps) => {
+const TensionGauge = ({ name, tension, maxTension = 50}: TensionGaugeProps) => {
     const percent = tension / maxTension;
     return (
         <div style={{ width: '100%', textAlign: 'center' }}>
