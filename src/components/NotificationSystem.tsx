@@ -9,8 +9,8 @@ const NotificationSystem: React.FC = () => {
     const [topNotifications, setTopNotifications] = useState<Notification[]>([]);
 
     const [thresholds] = useState<AlertThresholds>({
-        caution: 100,
-        danger: 110
+        caution: 20,
+        danger: 50
     });
     
     // 실시간 알림 감지 및 생성
@@ -64,7 +64,7 @@ const NotificationSystem: React.FC = () => {
                     setTimeout(() => {
                         setCurrentAlert(null);
                         setTopNotifications(prev => [newNotification, ...prev.slice(0, 4)]); // 최대 5개 유지
-                    }, 5000);
+                    }, 2000);
                 } else {
                     // 이미 중앙 팝업이 있으면 바로 상단 알림으로 추가
                     setTopNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
@@ -73,7 +73,7 @@ const NotificationSystem: React.FC = () => {
         };
 
         // 5초마다 장력 데이터 확인
-        const interval = setInterval(checkTensionAlerts, 5000);
+        const interval = setInterval(checkTensionAlerts, 2000);
 
         // 초기 실행
         checkTensionAlerts();

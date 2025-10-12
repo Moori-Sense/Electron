@@ -265,7 +265,7 @@ export const MainScreenLeft = ({ onNavigate }: MainScreenLeftProps): JSX.Element
     };
 
     fetchLines();
-    const intervalId = setInterval(fetchLines, 5000);
+    const intervalId = setInterval(fetchLines, 2000);
 
     return () => {
         clearInterval(intervalId);

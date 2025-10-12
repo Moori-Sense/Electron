@@ -9,7 +9,7 @@ interface TensionGaugeProps {
     maxTension?: number;
 }
 
-const TensionGauge = ({ name, tension, maxTension = 200 }: TensionGaugeProps) => {
+const TensionGauge = ({ name, tension, maxTension = 50 }: TensionGaugeProps) => {
     const percent = tension / maxTension;
     return (
         <div style={{ width: '100%', textAlign: 'center' }}>
@@ -17,6 +17,8 @@ const TensionGauge = ({ name, tension, maxTension = 200 }: TensionGaugeProps) =>
                 id={name}
                 percent={percent}
                 nrOfLevels={3}
+                // 👇 [핵심] 15t(30%), 10t(20%), 25t(50%) 구간으로 비율을 수정합니다.
+                percents={[0.3, 0.2, 0.5]} 
                 colors={['#4caf50', '#ffc107', '#ff4d4d']}
                 arcWidth={0.1}
                 needleColor="#e0e0e0"
@@ -70,7 +72,7 @@ export const GaugeCluster = () => {
             }
         };
 
-        const intervalId = setInterval(fetchLatestTensions, 5000);
+        const intervalId = setInterval(fetchLatestTensions, 2000);
         fetchLatestTensions(); // 초기 로드
 
         return () => clearInterval(intervalId);
