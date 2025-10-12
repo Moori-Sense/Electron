@@ -215,97 +215,102 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
 
   const [selectedLine, setSelectedLine] = useState<MooringLineData | null>(null);
 
-  useEffect(() => {
-    const fetchLines = async () => {
-        try {
-            const [details, latest, alerts] = await Promise.all([
-                window.api.getAllMooringLines(),
-                window.api.getLatestTensions(),
-                window.api.getAlertCount(),
-            ]);
+useEffect(() => {
+  const fetchLines = async () => {
+      try {
+          const [details, latest, alerts] = await Promise.all([
+              window.api.getAllMooringLines(),
+              window.api.getLatestTensions(),
+              window.api.getAlertCount(),
+          ]);
 
-            const latestMap = new Map<number, { time: string; tension: number }>();
-            if (latest) {
-                for (const row of latest) latestMap.set(row.lineId, row);
-            }
-            const alertMap = new Map<number, { cautionCount: number; warningCount: number }>();
-            if (alerts) {
-                for (const row of alerts) alertMap.set(row.lineId, row);
-            }
+          const latestMap = new Map<number, { time: string; tension: number }>();
+          if (latest) {
+              for (const row of latest) latestMap.set(row.lineId, row);
+          }
+          const alertMap = new Map<number, { cautionCount: number; warningCount: number }>();
+          if (alerts) {
+              for (const row of alerts) alertMap.set(row.lineId, row);
+          }
 
-            const displayOrder = [8, 7, 6, 5, 4, 3, 2, 1];
-            
-            // 1. API로부터 새로 받아온 데이터를 모두 조립합니다.
-            const newlyFetchedLines: MooringLineData[] = displayOrder.map((lineId, i) => {
-                const posIndex = i + 1;
-                const key = `line_${posIndex}` as keyof typeof bollardPositions;
-                const cleatKey = `cleat${posIndex}` as keyof typeof pierCleatPositions;
-                const d = (details || []).find((x: any) => x.id === lineId) || {};
-                const lt = latestMap.get(lineId);
-                const ac = alertMap.get(lineId);
+          const displayOrder = [8, 7, 6, 5, 4, 3, 2, 1];
+          
+          // 1. API로부터 새로 받아온 데이터를 모두 조립합니다.
+          const newlyFetchedLines: MooringLineData[] = displayOrder.map((lineId, i) => {
+              const posIndex = i + 1;
+              const key = `line_${posIndex}` as keyof typeof bollardPositions;
+              const cleatKey = `cleat${posIndex}` as keyof typeof pierCleatPositions;
+              const d = (details || []).find((x: any) => x.id === lineId) || {};
+              const lt = latestMap.get(lineId);
+              const ac = alertMap.get(lineId);
 
-                return {
-                    id: `Line ${lineId}`,
-                    tension: lt ? Number(lt.tension) || 0 : 0,
-                    startX: shipX + (bollardPositions as any)[key].x,
-                    startY: shipY + (bollardPositions as any)[key].y,
-                    endX: (pierCleatPositions as any)[cleatKey].x,
-                    endY: (pierCleatPositions as any)[cleatKey].y,
-                    manufacturer: d.manufacturer ?? 'N/A',
-                    model: d.model ?? 'N/A',
-                    usageHours: d.usageTime ?? 0,
-                    lastInspected: d.maintenanceDate,
-                    cautionCount: ac?.cautionCount ?? 0,
-                    warningCount: ac?.warningCount ?? 0,
-                };
-            });
+              // ✅ 변경된 부분: 현재 라인 ID가 5, 6, 7, 8인지 확인합니다.
+              const isFixedToZero = [5, 6, 7, 8].includes(lineId);
+              const fetchedTension = lt ? Number(lt.tension) || 0 : 0;
 
-            // 2. 함수형 업데이트를 사용하여 이전 상태와 비교하며 최종 상태를 결정합니다.
-            setLines(prevLines => {
-                // 최초 실행 시 (이전 상태가 없을 때)
-                if (prevLines.length === 0) {
-                    // 최초 데이터는 유효한 것만 필터링해서 보여줍니다.
-                    return newlyFetchedLines.filter(line => line.tension >= -10 && line.tension < 100);
-                }
+              return {
+                  id: `Line ${lineId}`,
+                  // ✅ 변경된 부분: ID가 일치하면 장력을 0으로 고정하고, 아니면 API 값을 사용합니다.
+                  tension: isFixedToZero ? 0 : fetchedTension,
+                  startX: shipX + (bollardPositions as any)[key].x,
+                  startY: shipY + (bollardPositions as any)[key].y,
+                  endX: (pierCleatPositions as any)[cleatKey].x,
+                  endY: (pierCleatPositions as any)[cleatKey].y,
+                  manufacturer: d.manufacturer ?? 'N/A',
+                  model: d.model ?? 'N/A',
+                  usageHours: d.usageTime ?? 0,
+                  lastInspected: d.maintenanceDate,
+                  cautionCount: ac?.cautionCount ?? 0,
+                  warningCount: ac?.warningCount ?? 0,
+              };
+          });
 
-                // 이전 상태가 있을 때: 새로 가져온 데이터를 기준으로 최종 배열을 만듭니다.
-                const updatedLines = newlyFetchedLines.map(newLine => {
-                    // 이전 데이터 배열에서 현재 라인과 ID가 같은 것을 찾습니다.
-                    const oldLine = prevLines.find(p => p.id === newLine.id);
-                    
-                    // 새로운 장력 값이 유효한 범위(-10 이상 100 미만)에 있는지 확인합니다.
-                    const isTensionValid = newLine.tension >= -10 && newLine.tension < 100;
+          // 2. 함수형 업데이트를 사용하여 이전 상태와 비교하며 최종 상태를 결정합니다.
+          setLines(prevLines => {
+              // 최초 실행 시 (이전 상태가 없을 때)
+              if (prevLines.length === 0) {
+                  // 최초 데이터는 유효한 것만 필터링해서 보여줍니다.
+                  return newlyFetchedLines.filter(line => line.tension >= -10 && line.tension < 100);
+              }
 
-                    if (isTensionValid) {
-                        // ✅ 장력이 유효하면: 새로운 라인 데이터를 그대로 반환합니다.
-                        return newLine;
-                    } else {
-                        // ❌ 장력이 유효하지 않으면:
-                        if (oldLine) {
-                            // 이전 데이터가 있다면, 이전 장력 값을 사용하고 나머지 정보는 최신으로 업데이트합니다.
-                            console.log(`[IGNORE] Line ${newLine.id}의 새 장력(${newLine.tension.toFixed(1)}t)은 무시하고 이전 값(${oldLine.tension.toFixed(1)}t)을 유지합니다.`);
-                            return { ...newLine, tension: oldLine.tension };
-                        }
-                        // 이전에 해당 라인 데이터가 없었다면, 화면에 표시하지 않습니다.
-                        return null;
-                    }
-                });
+              // 이전 상태가 있을 때: 새로 가져온 데이터를 기준으로 최종 배열을 만듭니다.
+              const updatedLines = newlyFetchedLines.map(newLine => {
+                  // 이전 데이터 배열에서 현재 라인과 ID가 같은 것을 찾습니다.
+                  const oldLine = prevLines.find(p => p.id === newLine.id);
+                  
+                  // 새로운 장력 값이 유효한 범위(-10 이상 100 미만)에 있는지 확인합니다.
+                  const isTensionValid = newLine.tension >= -10 && newLine.tension < 100;
 
-                // null로 처리된 항목을 최종적으로 걸러내고 상태를 업데이트합니다.
-                return updatedLines.filter(line => line !== null) as MooringLineData[];
-            });
+                  if (isTensionValid) {
+                      // ✅ 장력이 유효하면: 새로운 라인 데이터를 그대로 반환합니다.
+                      return newLine;
+                  } else {
+                      // ❌ 장력이 유효하지 않으면:
+                      if (oldLine) {
+                          // 이전 데이터가 있다면, 이전 장력 값을 사용하고 나머지 정보는 최신으로 업데이트합니다.
+                          console.log(`[IGNORE] Line ${newLine.id}의 새 장력(${newLine.tension.toFixed(1)}t)은 무시하고 이전 값(${oldLine.tension.toFixed(1)}t)을 유지합니다.`);
+                          return { ...newLine, tension: oldLine.tension };
+                      }
+                      // 이전에 해당 라인 데이터가 없었다면, 화면에 표시하지 않습니다.
+                      return null;
+                  }
+              });
 
-        } catch (e) {
-            console.error('계류줄 데이터 로드 실패:', e);
-        }
-    };
+              // null로 처리된 항목을 최종적으로 걸러내고 상태를 업데이트합니다.
+              return updatedLines.filter(line => line !== null) as MooringLineData[];
+          });
 
-    fetchLines();
-    const intervalId = setInterval(fetchLines, 2000);
+      } catch (e) {
+          console.error('계류줄 데이터 로드 실패:', e);
+      }
+  };
 
-    return () => {
-        clearInterval(intervalId);
-    };
+  fetchLines();
+  const intervalId = setInterval(fetchLines, 2000);
+
+  return () => {
+      clearInterval(intervalId);
+  };
 }, []);
   
 

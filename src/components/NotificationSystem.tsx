@@ -11,11 +11,11 @@ const NotificationSystem: React.FC = () => {
     const [lastAlertTime, setLastAlertTime] = useState<{[key: string]: number}>({});
 
     const [thresholds] = useState<AlertThresholds>({
-        caution: 200,
-        danger: 500
+        caution: 20,
+        danger: 30
     });
     
-    // 실시간 알림 감지 및 생성
+    // 실시간 알림 감지 및 생성 활용
     useEffect(() => {
         const checkTensionAlerts = async () => {
             // 최신 장력 데이터 가져오기
