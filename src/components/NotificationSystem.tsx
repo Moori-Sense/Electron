@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AlertThresholds, Notification } from "../types/notification";
+import { playCautionSound, playDangerSound } from "../utils/soundUtils";
 import "./NotificationSystem.css";
 
 
@@ -7,6 +8,7 @@ const NotificationSystem: React.FC = () => {
 
     const [currentAlert, setCurrentAlert] = useState<Notification | null>(null);
     const [topNotifications, setTopNotifications] = useState<Notification[]>([]);
+    const [lastAlertTime, setLastAlertTime] = useState<{[key: string]: number}>({});
 
     const [thresholds] = useState<AlertThresholds>({
         caution: 200,
@@ -45,6 +47,13 @@ const NotificationSystem: React.FC = () => {
 
             // 임계값을 초과한 라인이 있을 때 알림 생성
             if(alertLine && alertType){
+                const alertKey = `${alertLine.lineId}-${alertType}`;
+                const now = Date.now();
+                const lastAlert = lastAlertTime[alertKey] || 0;
+                
+                // 같은 라인의 같은 타입 알림이 10초 이내에 발생했으면 소리만 재생하지 않음
+                const shouldPlaySound = (now - lastAlert) > 10000;
+                
                 const newNotification: Notification = {
                     id: `${alertLine.lineId}-${Date.now()}`,
                     lineId: alertLine.lineId,
@@ -55,6 +64,16 @@ const NotificationSystem: React.FC = () => {
                     isRead: false,
                     isActive: true,
                 };
+
+                // 알림 타입에 따른 소리 재생 (중복 방지)
+                if (shouldPlaySound) {
+                    if (alertType === 'danger') {
+                        playDangerSound(); // 위험 알림: 연속 비프음
+                    } else if (alertType === 'caution') {
+                        playCautionSound(); // 주의 알림: 단일 비프음
+                    }
+                    setLastAlertTime(prev => ({ ...prev, [alertKey]: now }));
+                }
 
                 // 중앙 팝업이 없을 때만 중앙 팝업 표시
                 if(!currentAlert){
@@ -79,7 +98,7 @@ const NotificationSystem: React.FC = () => {
         checkTensionAlerts();
 
         return () => clearInterval(interval);
-    }, [thresholds]);
+    }, [thresholds, lastAlertTime]);
 
     // 상단 알림 제거 함수
     const removeTopNotification = (notificationId: string) => {
