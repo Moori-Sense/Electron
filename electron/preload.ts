@@ -1,5 +1,12 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
+
+export type TensionLog = {
+  lineId: number;
+  time: string;
+  tension: number;
+};
+
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
@@ -42,7 +49,11 @@ contextBridge.exposeInMainWorld('api', {
   getLineInfo: (lineId: string) => ipcRenderer.invoke('get-line-info', lineId),
   // 경고/위험 알림 개수 가져옴
   getAlertCount: () => ipcRenderer.invoke('get-alert-count'),
-
+  getMooringLineData: (lineId: number) => ipcRenderer.invoke('getMooringLineData', lineId),
+  sendDistanceToArduino: (distance: number) => {
+        // 이 부분이 main.js의 ipcMain.handle을 호출합니다.
+        return ipcRenderer.invoke('send-distance-to-arduino', distance);
+    }
 
 });
 

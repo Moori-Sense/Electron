@@ -36,6 +36,20 @@ export const queries = {
         alertMessage TEXT NOT NULL,
         FOREIGN KEY (lineId) REFERENCES MooringLines (id) ON DELETE CASCADE
     );
+    CREATE TABLE IF NOT EXISTS DistanceLogs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        sternDistance REAL NOT NULL,
+        bowDistance REAL NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS LengthLogs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        lineId INTEGER NOT NULL,
+        length REAL NOT NULL,
+        FOREIGN KEY (lineId) REFERENCES MooringLines (id) ON DELETE CASCADE
+    );
   `,
 
   // 1번부터 8번까지의 초기 계류줄 데이터를 삽입합니다.
@@ -234,9 +248,9 @@ export const queries = {
   `,
 
 // ✨ [여기에 추가] 개별 장력 로그를 삽입하는 쿼리
-  INSERT_TENSION_LOG: `
-    INSERT INTO TensionLogs (lineId, time, tension) VALUES (?, ?, ?);
-  `,
+  ///INSERT_TENSION_LOG: `
+   // INSERT INTO TensionLogs (lineId, time, tension) VALUES (?, ?, ?);
+  //`,
 
   /**
    * (추가) 지정된 개수(예: 1000개)만큼의 무작위 TensionLog 모의 데이터를 한 번에 생성합니다.
@@ -255,6 +269,19 @@ export const queries = {
       round(80.0 + (abs(random()) % 400) / 10.0, 2),      -- tension: 80.0 ~ 120.0 사이의 무작위 장력
       datetime('now', '-' || n || ' minutes')             -- time: 현재로부터 n분 전
     FROM generate_series;
-  `
+  `,
+
+  INSERT_TENSION_LOG: `
+    INSERT INTO TensionLogs (lineId, time, tension) VALUES (?, ?, ?);
+  `,
+  INSERT_VESSEL_STATUS_LOG: `
+    INSERT INTO DistanceLogs (time, sternDistance, bowDistance) VALUES (?, ?, ?);
+  `,
+  INSERT_ALERT_LOG: `
+    INSERT INTO AlertLogs (lineId, time, alertMessage) VALUES (?, ?, ?);
+  `,
+  INSERT_LENGTH_LOG: `
+    INSERT INTO LengthLogs (time, lineId, length) VALUES (?, ?, ?);
+  `,
 
 };

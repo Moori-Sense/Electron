@@ -12,7 +12,7 @@ import { WeatherDisplay } from './WeatherDisplay'; // 경로 오류 해결을 �
 import { LineInfoModal, MooringLineData } from './MooringLineInfo'; 
 import {ViewMode} from './types.tsx';
 // 계기판 라이브러리 임포트
-import GaugeChart from 'react-gauge-chart'; // 설치한 라이브러리 임포트
+//import GaugeChart from 'react-gauge-chart'; // 설치한 라이브러리 임포트
 import TensionGauge from './TensionGauge.tsx'
 
 
@@ -23,60 +23,148 @@ interface MooringLineProps {
 }
 
 const getLineColorByTension = (tension: number): string => {
-  if (tension >= 120) return '#ff4d4d';
-  if (tension >= 100) return '#ffc107';
+  if (tension >= 50) return '#ff4d4d';
+  if (tension >= 20) return '#ffc107';
   if(tension === 0.0) return '#a6aaad'; // '#a6aaadff'에서 ff 제거
   return '#4caf50';
 };
 
+
 const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   const LINE_THICKNESS = 4;
   
+  // 버튼 크기 및 폰트 설정 (호버 시 적용)
+  const FONT_SIZE = 18;
+  const RECT_WIDTH = 150;
+  const RECT_HEIGHT = 40;
+  
+  const TEXT_CONTENT = `${line.id.replace('Line ', 'Line ')}: ${line.tension.toFixed(1)}N`; 
+  const tensionColor = getLineColorByTension(line.tension);
+
+  // --- ✨ 라벨 위치를 개별적으로 절대 좌표 지정 (픽셀) ✨ ---
+  // key: line.id (예: 'Line 1'), value: { x: 수평 오프셋, y: 수직 오프셋 }
+  // 이 오프셋은 '라인 중앙'이 아닌, SVG의 (0,0)을 기준으로 라벨이 위치할 최종 좌표를 지정하는
+  // 방식으로 해석됩니다. (단, 여기서는 라인 중앙 좌표에서 '추가적인 오프셋'으로 사용하겠습니다.)
+  
+  // 라인 중앙 좌표 계산
+  const midX = (line.startX + line.endX) / 2;
+  const midY = (line.startY + line.endY) / 2;
+
+  // 기본 오프셋 (모든 라인에 공통으로 적용되는 기준 위치)
+  const DEFAULT_X_OFFSET = 0; 
+  const DEFAULT_Y_OFFSET = -0; // 라인 중앙보다 30px 위 (텍스트가 라인에 겹치지 않도록)
+
+  // Line ID별 개별 조정 오프셋 (기본 오프셋에 더해지는 값)
+  const CUSTOM_OFFSET_MAP = {
+      // Line 1은 기본 위치를 유지하려면 { x: 0, y: 0 }
+      'Line 1': { x: 0, y: -20 }, 
+      
+      // Line 2는 아래로 25px 이동하고 싶다면 (Y 오프셋에 25px 추가)
+      'Line 2': { x: 0, y: 55 }, 
+      
+      // Line 3은 위로 25px 이동하고 싶다면 (Y 오프셋에 -25px 추가)
+      'Line 3': { x: 0, y: -50 }, 
+      
+      // Line 4는 오른쪽으로 50px, 위로 10px 이동하고 싶다면
+      'Line 4': { x: 0, y: 20 },
+      
+      // 나머지 라인도 필요하다면 여기에 추가 (예: 'Line 8': { x: -40, y: 15 })
+  };
+
+  // 해당 라인의 커스텀 오프셋을 가져오고, 없으면 { x: 0, y: 0 }을 사용
+  const custom = CUSTOM_OFFSET_MAP[line.id as keyof typeof CUSTOM_OFFSET_MAP] || { x: 0, y: 0 };
+  
+  // 최종 라벨 위치 (라인 중앙 + 기본 오프셋 + 커스텀 오프셋)
+  const finalLabelX = midX + DEFAULT_X_OFFSET + custom.x;
+  const finalLabelY = midY + DEFAULT_Y_OFFSET + custom.y;
+  
+  // --- ✨ 위치 조정 로직 끝 ✨ ---
+  
+  // --- ✨ 호버 상태 관리 추가 ✨ ---
+  const [isHovered, setIsHovered] = useState(false);
+  // --- ✨ ✨ ---
+
+  // 라벨 배경 사각형 위치 (호버 시 텍스트 중앙에 오도록)
+  const rectX = finalLabelX - RECT_WIDTH / 2;
+  const rectY = finalLabelY - RECT_HEIGHT / 2;
+
   return (
-    <g style={{ cursor: 'pointer' }} onClick={onClick}>
+    <g 
+      style={{ cursor: 'pointer' }} 
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)} // 마우스 진입 시 호버 상태 true
+      onMouseLeave={() => setIsHovered(false)} // 마우스 이탈 시 호버 상태 false
+    >
+      {/* 1. 계류줄 (Line) */}
       <line
         x1={line.startX} y1={line.startY}
         x2={line.endX} y2={line.endY}
-        stroke={getLineColorByTension(line.tension)}
+        stroke={tensionColor}
         strokeWidth={LINE_THICKNESS}
       />
-      <text
-        x={(line.startX + line.endX) / 2} y={(line.startY + line.endY) / 2 - 15}
-        fill="white" fontSize="16" textAnchor="middle"
+
+      {/* 2. 장력 라벨 (호버 시 버튼처럼 보이게) */}
+      <g 
+          style={{ 
+              filter: isHovered ? 'drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5))' : 'none', // 호버 시에만 그림자 적용
+          }}
       >
-        {`${line.id}: ${line.tension.toFixed(1)}t`}
-      </text>
+        {/* 배경 사각형 (버튼 형태) - 호버 상태일 때만 렌더링 */}
+        {isHovered && (
+          <rect
+            x={rectX} y={rectY}
+            width={RECT_WIDTH} height={RECT_HEIGHT}
+            rx="5" ry="5"
+            fill={tensionColor}
+            stroke="#fff"
+            strokeWidth="1"
+          />
+        )}
+        
+        {/* 텍스트 */}
+        <text
+          x={finalLabelX} 
+          y={finalLabelY} 
+          fill={isHovered ? "black" : "white"} 
+          fontSize={FONT_SIZE} 
+          textAnchor="middle" 
+          dominantBaseline="middle" 
+          fontWeight={isHovered ? "bold" : "normal"}
+        >
+          {TEXT_CONTENT}
+        </text>
+      </g>
     </g>
   );
 };
 
 // --- 자식 컴포넌트: IconWithLabel ---
 interface IconWithLabelProps {
-  href: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  label: string;
-  onClick: () => void;
+  href: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  label: string;
+  onClick: () => void;
 }
 
 const IconWithLabel = ({ href, x, y, width, height, label, onClick }: IconWithLabelProps): JSX.Element => {
-    const yAlignmentCorrection = 2;
-    return (
-      <g style={{ cursor: 'pointer' }} onClick={onClick}>
-        <image href={href} x={x} y={y} width={width} height={height} />
-        <text
-          x={x + width + 15}
-          y={y + height / 2 + yAlignmentCorrection}
-          fill="white"
-          fontSize="18"
-          dominantBaseline="middle"
-        >
-          {label}
-        </text>
-      </g>
-    );
+    const yAlignmentCorrection = 2;
+    return (
+      <g style={{ cursor: 'pointer' }} onClick={onClick}>
+        <image href={href} x={x} y={y} width={width} height={height} />
+        <text
+          x={x + width + 15}
+          y={y + height / 2 + yAlignmentCorrection}
+          fill="white"
+          fontSize="18"
+          dominantBaseline="middle"
+        >
+          {label}
+        </text>
+      </g>
+    );
 };
 
 // --- Define Props Type ---
@@ -99,9 +187,10 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
   const DOCK_WIDTH = 700;
   const DOCK_HEIGHT = 1600;
   const DOCK_CENTER_Y = SHIP_CENTER_Y;
-  const dockX = 670;
+  const dockX = 700;
   const dockY = DOCK_CENTER_Y - DOCK_HEIGHT / 2;
 
+// 배와 줄을 연결하는 점
   const bollardPositions = {
     line_1: { x: 286, y: 390 }, line_2: { x: 273, y: 440 },
     line_3: { x: 268, y: 850 }, line_4: { x: 272, y: 900 },
@@ -109,11 +198,12 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
     line_7: { x: 370, y: 440 }, line_8: { x: 351, y: 390 },
   };
 
+// 부두와 줄을 연결하는 점
   const pierCleatPositions = {
     cleat1: { x: 650, y: 130 }, cleat2: { x: 650, y: 230 },
     cleat3: { x: 650, y: 590 }, cleat4: { x: 650, y: 660 },
-    cleat5: { x: 920, y: 655 }, cleat6: { x: 920, y: 530 },
-    cleat7: { x: 920, y: 283 }, cleat8: { x: 920, y: 130 },
+    cleat5: { x: 950, y: 655 }, cleat6: { x: 950, y: 530 },
+    cleat7: { x: 950, y: 283 }, cleat8: { x: 950, y: 130 },
   };
 
   const iconPositions = {
@@ -128,14 +218,12 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
   useEffect(() => {
     const fetchLines = async () => {
         try {
-            // 1. 세 종류의 데이터를 모두 한 번에 가져옵니다.
             const [details, latest, alerts] = await Promise.all([
                 window.api.getAllMooringLines(),
                 window.api.getLatestTensions(),
-                window.api.getAlertCount(), // API 이름이 다를 경우 여기에 맞게 수정해주세요.
+                window.api.getAlertCount(),
             ]);
 
-            // 2. 'latest'와 'alerts' 데이터를 Map으로 변환하여 준비합니다.
             const latestMap = new Map<number, { time: string; tension: number }>();
             if (latest) {
                 for (const row of latest) latestMap.set(row.lineId, row);
@@ -144,21 +232,20 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
             if (alerts) {
                 for (const row of alerts) alertMap.set(row.lineId, row);
             }
-            
-            // 3. 화면에 표시할 순서대로 lineId 배열을 순회하며 객체를 조립합니다.
+
             const displayOrder = [8, 7, 6, 5, 4, 3, 2, 1];
-            const mapped: MooringLineData[] = displayOrder.map((lineId, i) => {
+            
+            // 1. API로부터 새로 받아온 데이터를 모두 조립합니다.
+            const newlyFetchedLines: MooringLineData[] = displayOrder.map((lineId, i) => {
                 const posIndex = i + 1;
                 const key = `line_${posIndex}` as keyof typeof bollardPositions;
                 const cleatKey = `cleat${posIndex}` as keyof typeof pierCleatPositions;
-                
                 const d = (details || []).find((x: any) => x.id === lineId) || {};
                 const lt = latestMap.get(lineId);
                 const ac = alertMap.get(lineId);
 
-                // 4. 모든 데이터를 조합하여 하나의 MooringLineData 객체를 생성합니다.
-                const assembledLine = {
-                    id: `Line ${lineId}`, 
+                return {
+                    id: `Line ${lineId}`,
                     tension: lt ? Number(lt.tension) || 0 : 0,
                     startX: shipX + (bollardPositions as any)[key].x,
                     startY: shipY + (bollardPositions as any)[key].y,
@@ -171,35 +258,55 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
                     cautionCount: ac?.cautionCount ?? 0,
                     warningCount: ac?.warningCount ?? 0,
                 };
-
-                // ✅ [로그 1] 조립된 객체 하나하나를 콘솔에 출력하여 확인합니다.
-                console.log(`[map] lineId: ${lineId} 조립 완료`, assembledLine);
-
-                return assembledLine;
             });
 
-            // ✅ [로그 2] 최종적으로 완성된 8개 객체의 전체 배열을 콘솔에 출력합니다.
-            console.log("--- 최종 조립된 전체 데이터 (mapped) ---", mapped);
+            // 2. 함수형 업데이트를 사용하여 이전 상태와 비교하며 최종 상태를 결정합니다.
+            setLines(prevLines => {
+                // 최초 실행 시 (이전 상태가 없을 때)
+                if (prevLines.length === 0) {
+                    // 최초 데이터는 유효한 것만 필터링해서 보여줍니다.
+                    return newlyFetchedLines.filter(line => line.tension >= -10 && line.tension < 100);
+                }
 
-            // 5. 완성된 객체 배열을 state에 저장하여 화면을 업데이트합니다.
-            setLines(mapped);
+                // 이전 상태가 있을 때: 새로 가져온 데이터를 기준으로 최종 배열을 만듭니다.
+                const updatedLines = newlyFetchedLines.map(newLine => {
+                    // 이전 데이터 배열에서 현재 라인과 ID가 같은 것을 찾습니다.
+                    const oldLine = prevLines.find(p => p.id === newLine.id);
+                    
+                    // 새로운 장력 값이 유효한 범위(-10 이상 100 미만)에 있는지 확인합니다.
+                    const isTensionValid = newLine.tension >= -10 && newLine.tension < 100;
+
+                    if (isTensionValid) {
+                        // ✅ 장력이 유효하면: 새로운 라인 데이터를 그대로 반환합니다.
+                        return newLine;
+                    } else {
+                        // ❌ 장력이 유효하지 않으면:
+                        if (oldLine) {
+                            // 이전 데이터가 있다면, 이전 장력 값을 사용하고 나머지 정보는 최신으로 업데이트합니다.
+                            console.log(`[IGNORE] Line ${newLine.id}의 새 장력(${newLine.tension.toFixed(1)}t)은 무시하고 이전 값(${oldLine.tension.toFixed(1)}t)을 유지합니다.`);
+                            return { ...newLine, tension: oldLine.tension };
+                        }
+                        // 이전에 해당 라인 데이터가 없었다면, 화면에 표시하지 않습니다.
+                        return null;
+                    }
+                });
+
+                // null로 처리된 항목을 최종적으로 걸러내고 상태를 업데이트합니다.
+                return updatedLines.filter(line => line !== null) as MooringLineData[];
+            });
 
         } catch (e) {
             console.error('계류줄 데이터 로드 실패:', e);
         }
     };
 
-    // 💡 1. 컴포넌트가 마운트되면 즉시 한 번 호출 (첫 로딩을 위해)
-    fetchLines(); 
+    fetchLines();
+    const intervalId = setInterval(fetchLines, 2000);
 
-    // 💡 2. 5초(5000ms)마다 fetchLines 함수를 반복 호출하는 인터벌 설정
-    const intervalId = setInterval(fetchLines, 5000);
-
-    // 💡 3. 컴포넌트가 언마운트될 때 인터벌을 정리(clean-up)
     return () => {
         clearInterval(intervalId);
     };
-}, []); // 의존성 배열은 비워두어 이 로직이 마운트 시 한 번만 실행되도록 합니다.
+}, []);
   
 
 
@@ -219,8 +326,6 @@ export const MainScreenRight = ({ onNavigate }: MainScreenRightProps): JSX.Eleme
       }}>
         <WeatherDisplay />
       </div>
-
-    /**자동차 계기판 처럼 장력의 정도를 나타냄 */
 
      <div style={{
         position: 'absolute',

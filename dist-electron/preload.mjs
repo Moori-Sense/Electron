@@ -36,5 +36,10 @@ electron.contextBridge.exposeInMainWorld("api", {
   // 최종 정비, 총 사용시간을 가져옴
   getLineInfo: (lineId) => electron.ipcRenderer.invoke("get-line-info", lineId),
   // 경고/위험 알림 개수 가져옴
-  getAlertCount: () => electron.ipcRenderer.invoke("get-alert-count")
+  getAlertCount: () => electron.ipcRenderer.invoke("get-alert-count"),
+  getMooringLineData: (lineId) => electron.ipcRenderer.invoke("getMooringLineData", lineId),
+  sendDistanceToArduino: (distance) => {
+    return electron.ipcRenderer.invoke("send-distance-to-arduino", distance);
+  }
 });
+//# sourceMappingURL=preload.mjs.map
