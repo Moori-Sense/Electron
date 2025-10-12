@@ -17,7 +17,6 @@ const TensionGauge = ({ name, tension, maxTension = 50 }: TensionGaugeProps) => 
                 id={name}
                 percent={percent}
                 nrOfLevels={3}
-                // 👇 [핵심] 15t(30%), 10t(20%), 25t(50%) 구간으로 비율을 수정합니다.
                 percents={[0.3, 0.2, 0.5]} 
                 colors={['#4caf50', '#ffc107', '#ff4d4d']}
                 arcWidth={0.1}

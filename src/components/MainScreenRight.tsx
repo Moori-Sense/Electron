@@ -36,7 +36,7 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   // 버튼 크기 및 폰트 설정 (호버 시 적용)
   const FONT_SIZE = 18;
   const RECT_WIDTH = 150;
-  const RECT_HEIGHT = 30;
+  const RECT_HEIGHT = 40;
   
   const TEXT_CONTENT = `${line.id.replace('Line ', 'Line ')}: ${line.tension.toFixed(1)}N`; 
   const tensionColor = getLineColorByTension(line.tension);

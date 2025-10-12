@@ -9,8 +9,8 @@ const NotificationSystem: React.FC = () => {
     const [topNotifications, setTopNotifications] = useState<Notification[]>([]);
 
     const [thresholds] = useState<AlertThresholds>({
-        caution: 20,
-        danger: 50
+        caution: 200,
+        danger: 500
     });
     
     // 실시간 알림 감지 및 생성

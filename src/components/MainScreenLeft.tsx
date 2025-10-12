@@ -31,8 +31,8 @@ const MooringLine = ({ line, onClick }: MooringLineProps): JSX.Element => {
   // --- ✨ 버튼 크기 및 스타일 설정 ✨ ---
   const LINE_THICKNESS = 4;
   const FONT_SIZE = 16;
-  const RECT_WIDTH = 120;
-  const RECT_HEIGHT = 28;
+  const RECT_WIDTH = 140;
+  const RECT_HEIGHT = 40;
   const DEFAULT_Y_OFFSET = -15; // 텍스트만 있을 때의 기본 오프셋 (기존 값 유지)
   
   const TEXT_CONTENT = `${line.id}: ${line.tension.toFixed(1)}t`;
